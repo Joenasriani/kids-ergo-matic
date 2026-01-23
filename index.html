@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ERGO-MATIC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap');
+
+        :root {
+            --primary: rgb(59, 130, 246);
+            --bg-blue: rgb(224, 242, 254);
+            --outer-margin-bg: rgb(191, 219, 254);
+            --btn-deep: rgba(255, 255, 255, 0.2); 
+            --btn-shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--outer-margin-bg);
+            touch-action: manipulation;
+            user-select: none;
+            overflow: hidden;
+            height: 100dvh;
+            margin: 0;
+            padding: 3vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-shell {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-blue);
+            border-radius: clamp(20px, 4vmin, 60px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.25);
+            border: clamp(4px, 0.8vmin, 10px) solid white;
+        }
+
+        header {
+            flex-shrink: 0;
+            height: clamp(60px, 10vh, 90px);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            border-bottom: 4px solid var(--outer-margin-bg);
+            z-index: 10;
+        }
+
+        main#world {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(rgb(191,219,254) 2px, transparent 2px);
+            background-size: 30px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 4vmin;
+        }
+
+        .path-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: clamp(10px, 2vmin, 25px);
+            width: 95%;
+            max-width: 1100px;
+            max-height: 80%;
+            align-content: center;
+            justify-items: center;
+        }
+
+        .tile {
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: clamp(60px, 11vmin, 120px);
+            border-radius: clamp(12px, 2.5vmin, 30px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: clamp(3px, 0.6vmin, 8px) solid rgb(186, 230, 253);
+            box-shadow: 0 clamp(4px, 0.6vmin, 8px) 0 rgb(186, 230, 253);
+            position: relative;
+            font-size: clamp(30px, 6vmin, 60px);
+            transition: transform 0.2s;
+        }
+
+        .tile-active {
+            border-color: var(--primary);
+            box-shadow: 0 clamp(4px, 0.6vmin, 8px) 0 rgb(37, 99, 235);
+            transform: scale(1.05);
+        }
+
+        .tile-finish-glow {
+            background: var(--primary) !important;
+            border-color: white !important;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .tile-finish-glow::before {
+            content: '';
+            position: absolute;
+            top: -150%; left: -150%;
+            width: 400%; height: 400%;
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, white 355deg, white 360deg);
+            animation: rotateStrokeStreak 7s linear infinite;
+            z-index: -2;
+            opacity: 0;
+        }
+
+        .tile-finish-glow::after {
+            content: '';
+            position: absolute;
+            inset: 6px; 
+            background: var(--primary); 
+            border-radius: inherit;
+            z-index: -1;
+        }
+
+        .hero {
+            width: clamp(50px, 10vmin, 85px);
+            height: clamp(50px, 10vmin, 85px);
+            position: absolute;
+            z-index: 100;
+            font-size: clamp(35px, 8vmin, 65px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            filter: drop-shadow(0 10px 8px rgba(0,0,0,0.4));
+            will-change: left, top;
+        }
+
+        .hop { animation: hop-anim 0.5s ease; }
+        @keyframes hop-anim {
+            0%, 100% { transform: translateY(0); filter: drop-shadow(0 10px 8px rgba(0,0,0,0.4)); }
+            50% { transform: translateY(-50px) scale(1.3); filter: drop-shadow(0 40px 20px rgba(0,0,0,0.2)); }
+        }
+
+        .controls-area {
+            flex-shrink: 0;
+            height: clamp(160px, 22vh, 280px);
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 4px solid var(--outer-margin-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #dice-container {
+            height: 80%;
+            width: 100%;
+            max-width: 350px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .question-box {
+            background: white;
+            border-radius: clamp(20px, 4vmin, 50px);
+            width: 85%;
+            max-width: 800px;
+            padding: clamp(15px, 4vmin, 40px);
+            box-shadow: 0 40px 80px -15px rgba(0,0,0,0.6);
+            text-align: center;
+            transform: scale(0.6) translateY(50px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .show-box { transform: scale(1) translateY(0); opacity: 1; }
+
+        .intro-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--primary);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: clamp(1rem, 6vh, 4rem) 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .start-btn-custom {
+            background-color: var(--btn-deep);
+            box-shadow: 0 15px 0 var(--btn-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            font-size: 8vmin;
+            padding: 4vh 10vw;
+            border-radius: 40px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .start-btn-custom::before {
+            content: '';
+            position: absolute;
+            top: -150%; left: -150%;
+            width: 400%; height: 400%;
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, white 355deg, white 360deg);
+            animation: rotateStrokeStreak 7s linear infinite;
+            z-index: -2;
+            opacity: 0;
+        }
+
+        .start-btn-custom::after {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            background: #3b82f6; 
+            border-radius: inherit;
+            z-index: -1;
+        }
+
+        @keyframes rotateStrokeStreak {
+            0% { transform: rotate(0deg); opacity: 0; }
+            5% { opacity: 1; }
+            23% { opacity: 1; }
+            28% { transform: rotate(360deg); opacity: 0; }
+            100% { transform: rotate(360deg); opacity: 0; }
+        }
+
+        .control-icon {
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            width: clamp(40px, 6vmin, 60px);
+            height: clamp(40px, 6vmin, 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(20px, 3vmin, 30px);
+            box-shadow: 0 4px 0 var(--primary);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .lives-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #fff5f5;
+            padding: 8px 16px;
+            border-radius: 16px;
+            border: 2px solid #fee2e2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <div id="intro" class="intro-screen">
+            <h1 class="text-[22vmin] font-medium uppercase tracking-tighter leading-none">ERGO-MATIC</h1>
+            
+            <div class="bg-white/20 p-5 md:p-6 rounded-[25px] max-w-md shadow-2xl border border-white/30">
+                <h2 class="text-lg md:text-xl font-bold mb-3 uppercase opacity-90">How to Play</h2>
+                <ul class="text-base md:text-lg space-y-2 text-left opacity-90">
+                    <li>🎲 Roll the Cube to move</li>
+                    <li>💡 Answer Ergo-Questions Correctly</li>
+                    <li>💎 Collect Points</li>
+                    <li>❤️ Careful! Only 2 chances!</li>
+                </ul>
+            </div>
+            
+            <button onclick="startGame()" class="start-btn-custom text-white font-medium active:translate-y-2 active:shadow-none mb-4">START</button>
+        </div>
+
+        <div class="fixed top-8 right-8 flex gap-4 z-[4000]">
+            <div onclick="location.reload()" class="control-icon">🏠</div>
+            <div onclick="toggleFullscreen()" class="control-icon">⛶</div>
+        </div>
+
+        <header>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4 bg-blue-50 px-6 py-2 rounded-2xl border-2 border-blue-100">
+                    <span class="text-4xl">💎</span>
+                    <span id="score" class="text-4xl font-bold text-blue-600">0</span>
+                </div>
+                <div class="lives-container">
+                    <span id="lives-display" class="text-3xl flex gap-1">❤️❤️</span>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-blue-500 uppercase tracking-widest hidden lg:block">ERGO-MATIC</div>
+            <div class="w-20"></div>
+        </header>
+
+        <main id="world">
+            <div id="path" class="path-container"></div>
+            <div id="hero" class="hero">🤖</div>
+        </main>
+
+        <footer class="controls-area">
+            <div id="dice-container"></div>
+            <p class="font-bold text-blue-500 uppercase text-lg md:text-xl tracking-widest mb-4">ROLL THE CUBE!</p>
+        </footer>
+
+        <div id="modal" class="fixed inset-0 bg-black/85 backdrop-blur-xl hidden z-[6000] flex items-center justify-center p-6">
+            <div id="q-box" class="question-box">
+                <div id="card-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ERGO_BANK = [
+            { icon: '🏠', quest: 'Start', q: 'Ready to learn? Which posture is best while sitting?', a: ['Hunched forward', 'Sitting straight with back support', 'Slumping way down'], c: 1 },
+            { icon: '💻', quest: 'Laptop', q: 'The screen is too low for your eyes. What do you do?', a: ['Use books to lift it', 'Bend your neck down', 'Lean your head forward'], c: 0 },
+            { icon: '🍎', quest: 'Snack Break', q: 'Where is the healthiest place to eat your snack?', a: ['Away from your desk', 'While typing', 'On your lap'], c: 0 },
+            { icon: '🎒', quest: 'Backpack', q: 'Your bag is heavy and pulls you back!', a: ['Use one strap', 'Tighten both straps high', 'Carry in your hand'], c: 1 },
+            { icon: '📱', quest: 'Phone', q: 'Looking down at your phone hurts your neck.', a: ['Rest on belly', 'Hold phone at eye level', 'Keep looking down'], c: 1 },
+            { icon: '🖱️', quest: 'Mouse', q: 'How should your hand rest on a computer mouse?', a: ['Squeeze it tight', 'Lightly and relaxed', 'Using only two fingers'], c: 1 },
+            { icon: '💧', quest: 'Hydration', q: 'Why is drinking water good for ergonomics?', a: ['It makes you move', 'It makes you faster', 'It cleans the screen'], c: 0 },
+            { icon: '🪑', quest: 'Feet', q: 'Your feet don\'t touch the floor. What is the fix?', a: ['Swing legs', 'Use a box rest', 'Sit on knees'], c: 1 },
+            { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
+            { icon: '🤳', quest: 'Tablet', q: 'Watching a movie on a flat table? Best way?', a: ['Hold it flat', 'Use a stand', 'Lie on side'], c: 1 },
+            { icon: '🧘', quest: 'Stretching', q: 'How often should you do a quick stretch break?', a: ['Every 20 minutes', 'Once a week', 'Only when it hurts'], c: 0 },
+            { icon: '⌨️', quest: 'Wrists', q: 'Your hands bend up while typing. What should you do?', a: ['Keep wrists flat/straight', 'Rest on desk edge', 'Type with one finger'], c: 0 },
+            { icon: '🚶', quest: 'Movement', q: 'What is the best thing after 30 minutes of sitting?', a: ['Sit longer', 'Stand and walk', 'Close eyes'], c: 1 },
+            { icon: '🪟', quest: 'Air', q: 'Why is fresh air important for your workspace?', a: ['Helps focus', 'Cleans keyboard', 'Makes mouse faster'], c: 0 },
+            { icon: '🎧', quest: 'Audio', q: 'How loud should you listen to music in headphones?', a: ['Volume 100%', 'Medium (60/60 rule)', 'Until ears ring'], c: 1 },
+            { icon: '💡', quest: 'Light', q: 'It\'s getting dark and eyes are tired. Help!', a: ['Turn on a lamp', 'Sit in dark', 'Stare harder'], c: 0 },
+            { icon: '🏃', quest: 'Eye Care', q: 'What is the 20-20-20 rule for your eyes?', a: ['Stare for 20 mins', 'Look far away every 20m', 'Blink 20 times'], c: 1 },
+            { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
+            { icon: '💪', quest: 'Shoulders', q: 'Your shoulders are up by your ears while typing.', a: ['Hold them tight', 'Relax them down', 'Shrug them more'], c: 1 },
+            { icon: '📐', quest: 'Elbows', q: 'What angle should your elbows be while typing?', a: ['Straight out', '90 degrees (L shape)', 'Bent all the way'], c: 1 },
+            { icon: '🛋️', quest: 'Reading', q: 'Reading a book on the couch? How to sit?', a: ['Hunched over it', 'Pillow on lap to lift book', 'Lying on your belly'], c: 1 },
+            { icon: '☀️', quest: 'Glare', q: 'The sun is reflecting off your screen!', a: ['Close the blinds', 'Squint your eyes', 'Sit closer'], c: 0 },
+            { icon: '👟', quest: 'Walking', q: 'To walk with great posture, how should your body be aligned?', a: ['Leaning way back', 'Tall with eyes looking ahead', 'Hunched over your phone'], c: 1 },
+            { icon: '📝', quest: 'Writing', q: 'Writing with a pen? Your hand feels cramped.', a: ['Grip tighter', 'Loosen your grip', 'Stop writing forever'], c: 1 },
+            { icon: '🌟', quest: 'Final', q: 'What is the most important part of ergonomics?', a: ['Buying a new chair', 'Moving and changing posture', 'Getting a bigger screen'], c: 1 }
+        ];
+
+        let pos = 0, previousPos = 0, score = 0, locked = false, lives = 2;
+        let levels = [];
+        const world = document.getElementById('world'), path = document.getElementById('path'), hero = document.getElementById('hero'), modal = document.getElementById('modal');
+        const qBox = document.getElementById('q-box'), diceContainer = document.getElementById('dice-container');
+
+        let scene, camera, renderer, cube, isRolling = false, targetRotation = { x: 0, y: 0, z: 0 }, rollVelocity = { x: 0, y: 0 };
+
+        function init3D() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            diceContainer.appendChild(renderer.domElement);
+            updateDiceSize();
+
+            const geometry = new THREE.BoxGeometry(2.8, 2.8, 2.8);
+            const createFace = (num) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1024; canvas.height = 1024;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 1024, 1024);
+                ctx.strokeStyle = 'rgb(59, 130, 246)'; ctx.lineWidth = 80; ctx.strokeRect(40, 40, 944, 944);
+                ctx.fillStyle = 'rgb(59, 130, 246)'; ctx.font = 'bold 640px Fredoka, Arial';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(num, 512, 512);
+                const texture = new THREE.CanvasTexture(canvas);
+                return new THREE.MeshBasicMaterial({ map: texture });
+            };
+
+            const materials = [
+                createFace('3'), createFace('4'), // +X, -X
+                createFace('2'), createFace('5'), // +Y, -Y
+                createFace('1'), createFace('6')  // +Z, -Z
+            ];
+
+            cube = new THREE.Mesh(geometry, materials);
+            scene.add(cube); camera.position.z = 7;
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                if (isRolling) {
+                    cube.rotation.x += rollVelocity.x; 
+                    cube.rotation.y += rollVelocity.y;
+                    rollVelocity.x *= 0.985; 
+                    rollVelocity.y *= 0.985;
+                } else {
+                    cube.rotation.x += (targetRotation.x - cube.rotation.x) * 0.15;
+                    cube.rotation.y += (targetRotation.y - cube.rotation.y) * 0.15;
+                    cube.rotation.z += (targetRotation.z - cube.rotation.z) * 0.15;
+                }
+                renderer.render(scene, camera);
+            };
+            animate();
+        }
+
+        function updateDiceSize() {
+            const width = diceContainer.offsetWidth;
+            const height = diceContainer.offsetHeight;
+            if (width === 0 || height === 0) return;
+            const size = Math.min(width, height);
+            renderer.setSize(size, size);
+            camera.aspect = 1; camera.updateProjectionMatrix();
+        }
+
+        function initGame() {
+            const startNode = ERGO_BANK.find(item => item.icon === '🏠');
+            const pool = ERGO_BANK.filter(item => item.icon !== '🏠').sort(() => Math.random() - 0.5);
+            levels = [startNode, ...pool.slice(0, 16)];
+            levels.push({ type: 'finish', icon: '🏆', quest: 'Finish', q: '', a: [], c: 0 });
+
+            path.innerHTML = '';
+            levels.forEach((l, i) => {
+                const t = document.createElement('div');
+                t.className = 'tile';
+                if (i === 0) {
+                    t.style.backgroundColor = '#e0f2fe';
+                    t.style.borderColor = '#bae6fd';
+                    t.style.boxShadow = '0 clamp(4px, 0.6vmin, 8px) 0 #bae6fd';
+                }
+                if (l.type === 'finish') t.classList.add('tile-finish-glow');
+                t.id = `t-${i}`; t.innerHTML = l.icon; path.appendChild(t);
+            });
+            setTimeout(placeHero, 300);
+        }
+
+        function placeHero() {
+            const target = document.getElementById(`t-${pos}`);
+            if (!target) return;
+            const worldRect = world.getBoundingClientRect();
+            const targetRect = target.getBoundingClientRect();
+            const centerX = (targetRect.left - worldRect.left + (targetRect.width / 2) - (hero.offsetWidth / 2));
+            const centerY = (targetRect.top - worldRect.top + (targetRect.height / 2) - (hero.offsetHeight / 2));
+            hero.style.left = centerX + 'px'; hero.style.top = centerY + 'px';
+            document.querySelectorAll('.tile').forEach(el => el.classList.remove('tile-active'));
+            target.classList.add('tile-active');
+        }
+
+        function startGame() { 
+            document.getElementById('intro').classList.add('hidden'); 
+            setTimeout(updateDiceSize, 50);
+        }
+
+        async function rollDice() {
+            if (locked || isRolling) return;
+            locked = true; isRolling = true;
+            previousPos = pos;
+            rollVelocity = { x: 0.6 + Math.random() * 0.4, y: 0.6 + Math.random() * 0.4 };
+            const move = Math.floor(Math.random() * 6) + 1;
+            await new Promise(r => setTimeout(r, 1600));
+            isRolling = false;
+            
+            const mapping = [
+                {x: 0, y: 0, z: 0},               // 1: +Z
+                {x: Math.PI/2, y: 0, z: 0},       // 2: +Y
+                {x: 0, y: -Math.PI/2, z: 0},      // 3: +X
+                {x: 0, y: Math.PI/2, z: 0},       // 4: -X
+                {x: -Math.PI/2, y: 0, z: Math.PI},// 5: -Y
+                {x: 0, y: Math.PI, z: 0}          // 6: -Z
+            ];
+            targetRotation = mapping[move-1];
+            
+            await new Promise(r => setTimeout(r, 1000));
+            for (let i = 0; i < move; i++) {
+                if (pos < levels.length - 1) {
+                    pos++; hero.classList.add('hop'); placeHero();
+                    await new Promise(r => setTimeout(r, 600));
+                    hero.classList.remove('hop');
+                }
+            }
+            await new Promise(r => setTimeout(r, 700));
+            handleLand();
+        }
+
+        function handleLand() {
+            const l = levels[pos];
+            if (l.type === 'finish') showWin();
+            else openCard(l);
+        }
+
+        function openCard(data) {
+            document.getElementById('card-content').innerHTML = `
+                <div class="text-[12vmin] mb-4">${data.icon}</div>
+                <h3 class="text-blue-500 font-bold uppercase tracking-widest text-[4vmin] mb-2">${data.quest || "Ergo Quest"}</h3>
+                <p class="text-[4.5vmin] font-bold text-blue-600 mb-8 leading-tight">${data.q}</p>
+                <div class="grid grid-cols-1 gap-4">
+                    ${data.a.map((opt, i) => `<button onclick="answer(${i}, ${data.c})" class="bg-blue-500 text-white p-6 rounded-[3vmin] font-medium text-[3.5vmin] shadow-[0_1vmin_0_rgb(29,78,216)] active:translate-y-1 active:shadow-none">${opt}</button>`).join('')}
+                </div>
+            `;
+            modal.classList.remove('hidden'); setTimeout(() => qBox.classList.add('show-box'), 50);
+        }
+
+        window.answer = (idx, correct) => {
+            qBox.classList.remove('show-box');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (idx === correct) { 
+                    score += 20; flashMsg("EXCELLENT! +20", "bg-green-500"); locked = false;
+                } else { 
+                    lives--; updateLivesDisplay();
+                    if (lives <= 0) { showGameOver(); return; }
+                    pos = previousPos; hero.classList.add('hop'); placeHero();
+                    setTimeout(() => { hero.classList.remove('hop'); locked = false; }, 600);
+                    score = Math.max(0, score - 5); flashMsg("WRONG! ❤️ LOST", "bg-red-500"); 
+                }
+                document.getElementById('score').textContent = score;
+            }, 350);
+        };
+
+        function updateLivesDisplay() {
+            const display = document.getElementById('lives-display');
+            display.textContent = "❤️".repeat(lives);
+            if (lives === 0) display.textContent = "🖤🖤";
+        }
+
+        function flashMsg(txt, colorClass) {
+            const m = document.createElement('div');
+            m.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border-[1vmin] border-blue-500 text-blue-600 px-12 py-6 rounded-[5vmin] text-[8vmin] font-bold z-[10000] shadow-2xl animate-bounce pointer-events-none`;
+            m.textContent = txt; document.body.appendChild(m); setTimeout(() => m.remove(), 2000);
+        }
+
+        function showGameOver() {
+            document.getElementById('card-content').innerHTML = `
+                <span class="text-[15vmin] mb-8 block">🚨</span>
+                <h2 class="text-[10vmin] font-bold text-red-600 mb-4 uppercase">Game Over</h2>
+                <p class="text-[5vmin] text-gray-500 mb-8 font-bold">You ran out of chances!</p>
+                <button onclick="location.reload()" class="bg-red-600 text-white p-10 rounded-[5vmin] font-medium text-[6vmin] shadow-[0_1.5vmin_0_rgb(153,27,27)]">RESTART</button>
+            `;
+            modal.classList.remove('hidden'); setTimeout(() => qBox.classList.add('show-box'), 10);
+        }
+
+        function showWin() {
+            document.getElementById('card-content').innerHTML = `
+                <span class="text-[15vmin] mb-8 block">🏆</span>
+                <h2 class="text-[10vmin] font-bold text-blue-600 mb-4">CHAMPION!</h2>
+                <p class="text-[5vmin] text-gray-500 mb-8 font-bold">Total Points: ${score}</p>
+                <button onclick="location.reload()" class="bg-blue-600 text-white p-10 rounded-[5vmin] font-medium text-[6vmin] shadow-[0_1.5vmin_0_rgb(29,78,216)]">REPLAY</button>
+            `;
+            modal.classList.remove('hidden'); setTimeout(() => qBox.classList.add('show-box'), 10);
+        }
+
+        diceContainer.addEventListener('click', rollDice);
+        window.onload = () => { init3D(); initGame(); };
+        window.onresize = () => { updateDiceSize(); placeHero(); };
+    </script>
+</body>
+</html>
