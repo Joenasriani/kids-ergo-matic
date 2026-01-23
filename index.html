@@ -25,7 +25,7 @@
             overflow: hidden;
             height: 100dvh;
             margin: 0;
-            padding: 3vmin;
+            padding: 2vmin;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -35,32 +35,32 @@
             width: 100%;
             height: 100%;
             background: var(--bg-blue);
-            border-radius: clamp(20px, 4vmin, 60px);
+            border-radius: 4vmin;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.25);
-            border: clamp(4px, 0.8vmin, 10px) solid white;
+            box-shadow: 0 4vmin 10vmin -2vmin rgba(0,0,0,0.25);
+            border: 0.8vmin solid rgb(255, 255, 255);
         }
 
         header {
             flex-shrink: 0;
-            height: clamp(60px, 10vh, 90px);
-            background: white;
+            height: 12vmin;
+            background: rgb(255, 255, 255);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 2rem;
-            border-bottom: 4px solid var(--outer-margin-bg);
+            padding: 0 4vmin;
+            border-bottom: 0.5vmin solid var(--outer-margin-bg);
             z-index: 10;
         }
 
-        main#world {
+        main.world-view {
             flex: 1;
             position: relative;
-            background: radial-gradient(rgb(191,219,254) 2px, transparent 2px);
-            background-size: 30px 30px;
+            background: radial-gradient(rgb(191,219,254) 0.3vmin, transparent 0.3vmin);
+            background-size: 5vmin 5vmin;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -71,10 +71,10 @@
         .path-container {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: clamp(10px, 2vmin, 25px);
-            width: 95%;
-            max-width: 1100px;
-            max-height: 80%;
+            gap: 2vmin;
+            width: 100%;
+            max-width: 120vmin;
+            max-height: 85%;
             align-content: center;
             justify-items: center;
         }
@@ -82,28 +82,28 @@
         .tile {
             width: 100%;
             aspect-ratio: 1;
-            max-width: clamp(60px, 11vmin, 120px);
-            border-radius: clamp(12px, 2.5vmin, 30px);
+            max-width: 15vmin;
+            border-radius: 3vmin;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: white;
-            border: clamp(3px, 0.6vmin, 8px) solid rgb(186, 230, 253);
-            box-shadow: 0 clamp(4px, 0.6vmin, 8px) 0 rgb(186, 230, 253);
+            background: rgb(255, 255, 255);
+            border: 0.6vmin solid rgb(186, 230, 253);
+            box-shadow: 0 0.8vmin 0 rgb(186, 230, 253);
             position: relative;
-            font-size: clamp(30px, 6vmin, 60px);
+            font-size: 8vmin;
             transition: transform 0.2s;
         }
 
         .tile-active {
             border-color: var(--primary);
-            box-shadow: 0 clamp(4px, 0.6vmin, 8px) 0 rgb(37, 99, 235);
+            box-shadow: 0 0.8vmin 0 rgb(37, 99, 235);
             transform: scale(1.05);
         }
 
         .tile-finish-glow {
             background: var(--primary) !important;
-            border-color: white !important;
+            border-color: rgb(255, 255, 255) !important;
             overflow: hidden;
             z-index: 1;
         }
@@ -113,7 +113,7 @@
             position: absolute;
             top: -150%; left: -150%;
             width: 400%; height: 400%;
-            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, white 355deg, white 360deg);
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, rgb(255, 255, 255) 355deg, rgb(255, 255, 255) 360deg);
             animation: rotateStrokeStreak 7s linear infinite;
             z-index: -2;
             opacity: 0;
@@ -122,38 +122,38 @@
         .tile-finish-glow::after {
             content: '';
             position: absolute;
-            inset: 6px; 
+            inset: 0.8vmin; 
             background: var(--primary); 
             border-radius: inherit;
             z-index: -1;
         }
 
         .hero {
-            width: clamp(50px, 10vmin, 85px);
-            height: clamp(50px, 10vmin, 85px);
+            width: 10vmin;
+            height: 10vmin;
             position: absolute;
             z-index: 100;
-            font-size: clamp(35px, 8vmin, 65px);
+            font-size: 8vmin;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
-            filter: drop-shadow(0 10px 8px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 1vmin 1vmin rgba(0,0,0,0.4));
             will-change: left, top;
         }
 
         .hop { animation: hop-anim 0.5s ease; }
         @keyframes hop-anim {
-            0%, 100% { transform: translateY(0); filter: drop-shadow(0 10px 8px rgba(0,0,0,0.4)); }
-            50% { transform: translateY(-50px) scale(1.3); filter: drop-shadow(0 40px 20px rgba(0,0,0,0.2)); }
+            0%, 100% { transform: translateY(0); filter: drop-shadow(0 1vmin 1vmin rgba(0,0,0,0.4)); }
+            50% { transform: translateY(-8vmin) scale(1.3); filter: drop-shadow(0 4vmin 2vmin rgba(0,0,0,0.2)); }
         }
 
         .controls-area {
             flex-shrink: 0;
-            height: clamp(160px, 22vh, 280px);
+            height: 25vmin;
             background: rgba(255, 255, 255, 0.95);
-            border-top: 4px solid var(--outer-margin-bg);
+            border-top: 0.5vmin solid var(--outer-margin-bg);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -161,26 +161,24 @@
             position: relative;
         }
 
-        #dice-container {
-            height: 80%;
+        .dice-box {
+            height: 85%;
             width: 100%;
-            max-width: 350px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
         }
 
         .question-box {
-            background: white;
-            border-radius: clamp(20px, 4vmin, 50px);
-            width: 85%;
-            max-width: 800px;
-            padding: clamp(15px, 4vmin, 40px);
-            box-shadow: 0 40px 80px -15px rgba(0,0,0,0.6);
+            background: rgb(255, 255, 255);
+            border-radius: 5vmin;
+            width: 90%;
+            max-width: 100vmin;
+            padding: 5vmin;
+            box-shadow: 0 5vmin 10vmin -2vmin rgba(0,0,0,0.6);
             text-align: center;
-            transform: scale(0.6) translateY(50px);
+            transform: scale(0.6) translateY(5vmin);
             opacity: 0;
             transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -196,22 +194,22 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: clamp(1rem, 6vh, 4rem) 2rem;
-            color: white;
+            padding: 8vmin 4vmin;
+            color: rgb(255, 255, 255);
             text-align: center;
         }
 
         .start-btn-custom {
             background-color: var(--btn-deep);
-            box-shadow: 0 15px 0 var(--btn-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 1.5vmin 0 var(--btn-shadow);
+            border: 0.2vmin solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
             z-index: 1;
             font-size: 8vmin;
-            padding: 4vh 10vw;
-            border-radius: 40px;
-            backdrop-filter: blur(10px);
+            padding: 3vmin 12vmin;
+            border-radius: 4vmin;
+            backdrop-filter: blur(1vmin);
             cursor: pointer;
         }
 
@@ -220,7 +218,7 @@
             position: absolute;
             top: -150%; left: -150%;
             width: 400%; height: 400%;
-            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, white 355deg, white 360deg);
+            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, rgb(255, 255, 255) 355deg, rgb(255, 255, 255) 360deg);
             animation: rotateStrokeStreak 7s linear infinite;
             z-index: -2;
             opacity: 0;
@@ -229,8 +227,8 @@
         .start-btn-custom::after {
             content: '';
             position: absolute;
-            inset: 6px;
-            background: #3b82f6; 
+            inset: 0.8vmin;
+            background: rgb(59, 130, 246); 
             border-radius: inherit;
             z-index: -1;
         }
@@ -244,28 +242,28 @@
         }
 
         .control-icon {
-            background: white;
-            border: 3px solid var(--primary);
-            border-radius: 12px;
-            width: clamp(40px, 6vmin, 60px);
-            height: clamp(40px, 6vmin, 60px);
+            background: rgb(255, 255, 255);
+            border: 0.4vmin solid var(--primary);
+            border-radius: 1.5vmin;
+            width: 7vmin;
+            height: 7vmin;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(20px, 3vmin, 30px);
-            box-shadow: 0 4px 0 var(--primary);
+            font-size: 4vmin;
+            box-shadow: 0 0.5vmin 0 var(--primary);
             cursor: pointer;
             z-index: 1000;
         }
 
         .lives-container {
             display: flex;
-            gap: 8px;
+            gap: 1.5vmin;
             align-items: center;
-            background: #fff5f5;
-            padding: 8px 16px;
-            border-radius: 16px;
-            border: 2px solid #fee2e2;
+            background: rgb(255, 245, 245);
+            padding: 1vmin 2.5vmin;
+            border-radius: 2.5vmin;
+            border: 0.3vmin solid rgb(254, 226, 226);
         }
     </style>
 </head>
@@ -275,9 +273,9 @@
         <div id="intro" class="intro-screen">
             <h1 class="text-[22vmin] font-medium uppercase tracking-tighter leading-none">ERGO-MATIC</h1>
             
-            <div class="bg-white/20 p-5 md:p-6 rounded-[25px] max-w-md shadow-2xl border border-white/30">
-                <h2 class="text-lg md:text-xl font-bold mb-3 uppercase opacity-90">How to Play</h2>
-                <ul class="text-base md:text-lg space-y-2 text-left opacity-90">
+            <div class="bg-white/20 p-[4vmin] rounded-[4vmin] max-w-[80vmin] shadow-2xl border border-white/30">
+                <h2 class="text-[3.5vmin] font-bold mb-[2vmin] uppercase opacity-90">How to Play</h2>
+                <ul class="text-[2.8vmin] space-y-[1.5vmin] text-left opacity-90">
                     <li>🎲 Roll the Cube to move</li>
                     <li>💡 Answer Ergo-Questions Correctly</li>
                     <li>💎 Collect Points</li>
@@ -285,39 +283,39 @@
                 </ul>
             </div>
             
-            <button onclick="startGame()" class="start-btn-custom text-white font-medium active:translate-y-2 active:shadow-none mb-4">START</button>
+            <button onclick="startGame()" class="start-btn-custom text-white font-medium active:translate-y-[1vmin] active:shadow-none mb-[2vmin]">START</button>
         </div>
 
-        <div class="fixed top-8 right-8 flex gap-4 z-[4000]">
+        <div class="fixed top-[3vmin] right-[3vmin] flex gap-[2vmin] z-[4000]">
             <div onclick="location.reload()" class="control-icon">🏠</div>
             <div onclick="toggleFullscreen()" class="control-icon">⛶</div>
         </div>
 
         <header>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-4 bg-blue-50 px-6 py-2 rounded-2xl border-2 border-blue-100">
-                    <span class="text-4xl">💎</span>
-                    <span id="score" class="text-4xl font-bold text-blue-600">0</span>
+            <div class="flex items-center gap-[4vmin]">
+                <div class="flex items-center gap-[2vmin] bg-blue-50 px-[3vmin] py-[1vmin] rounded-[2.5vmin] border-[0.3vmin] border-blue-100">
+                    <span class="text-[5vmin]">💎</span>
+                    <span id="score" class="text-[5vmin] font-bold text-blue-600">0</span>
                 </div>
                 <div class="lives-container">
-                    <span id="lives-display" class="text-3xl flex gap-1">❤️❤️</span>
+                    <span id="lives-display" class="text-[4vmin] flex gap-[0.5vmin]">❤️❤️</span>
                 </div>
             </div>
-            <div class="text-3xl font-bold text-blue-500 uppercase tracking-widest hidden lg:block">ERGO-MATIC</div>
-            <div class="w-20"></div>
+            <div class="text-[4vmin] font-bold text-blue-500 uppercase tracking-widest hidden lg:block">ERGO-MATIC</div>
+            <div class="w-[10vmin]"></div>
         </header>
 
-        <main id="world">
+        <main class="world-view" id="game-main">
             <div id="path" class="path-container"></div>
             <div id="hero" class="hero">🤖</div>
         </main>
 
         <footer class="controls-area">
-            <div id="dice-container"></div>
-            <p class="font-bold text-blue-500 uppercase text-lg md:text-xl tracking-widest mb-4">ROLL THE CUBE!</p>
+            <div id="dice-container" class="dice-box"></div>
+            <p class="font-bold text-blue-500 uppercase text-[2.5vmin] tracking-widest mb-[2vmin]">ROLL THE CUBE!</p>
         </footer>
 
-        <div id="modal" class="fixed inset-0 bg-black/85 backdrop-blur-xl hidden z-[6000] flex items-center justify-center p-6">
+        <div id="modal" class="fixed inset-0 bg-black/85 backdrop-blur-xl hidden z-[6000] flex items-center justify-center p-[4vmin]">
             <div id="q-box" class="question-box">
                 <div id="card-content"></div>
             </div>
@@ -355,7 +353,7 @@
 
         let pos = 0, previousPos = 0, score = 0, locked = false, lives = 2;
         let levels = [];
-        const world = document.getElementById('world'), path = document.getElementById('path'), hero = document.getElementById('hero'), modal = document.getElementById('modal');
+        const world = document.getElementById('game-main'), path = document.getElementById('path'), hero = document.getElementById('hero'), modal = document.getElementById('modal');
         const qBox = document.getElementById('q-box'), diceContainer = document.getElementById('dice-container');
 
         let scene, camera, renderer, cube, isRolling = false, targetRotation = { x: 0, y: 0, z: 0 }, rollVelocity = { x: 0, y: 0 };
@@ -382,14 +380,10 @@
                 return new THREE.MeshBasicMaterial({ map: texture });
             };
 
-            // [+X, -X, +Y, -Y, +Z, -Z]
             const materials = [
-                createFace('3'), // 0
-                createFace('4'), // 1
-                createFace('2'), // 2
-                createFace('5'), // 3
-                createFace('1'), // 4
-                createFace('6')  // 5
+                createFace('3'), createFace('4'), // +X, -X
+                createFace('2'), createFace('5'), // +Y, -Y
+                createFace('1'), createFace('6')  // +Z, -Z
             ];
 
             cube = new THREE.Mesh(geometry, materials);
@@ -432,9 +426,9 @@
                 const t = document.createElement('div');
                 t.className = 'tile';
                 if (i === 0) {
-                    t.style.backgroundColor = '#e0f2fe';
-                    t.style.borderColor = '#bae6fd';
-                    t.style.boxShadow = '0 clamp(4px, 0.6vmin, 8px) 0 #bae6fd';
+                    t.style.backgroundColor = 'rgb(224, 242, 254)';
+                    t.style.borderColor = 'rgb(186, 230, 253)';
+                    t.style.boxShadow = '0 0.8vmin 0 rgb(186, 230, 253)';
                 }
                 if (l.type === 'finish') t.classList.add('tile-finish-glow');
                 t.id = `t-${i}`; t.innerHTML = l.icon; path.appendChild(t);
@@ -456,28 +450,28 @@
 
         function startGame() { 
             document.getElementById('intro').classList.add('hidden'); 
-            setTimeout(updateDiceSize, 50);
+            setTimeout(updateDiceSize, 100);
         }
+
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 
         async function rollDice() {
             if (locked || isRolling) return;
             locked = true; isRolling = true;
             previousPos = pos;
             rollVelocity = { x: 0.6 + Math.random() * 0.4, y: 0.6 + Math.random() * 0.4 };
-            
             const move = Math.floor(Math.random() * 6) + 1;
             
             await new Promise(r => setTimeout(r, 1600));
             isRolling = false;
             
-            // PRECISE UPRIGHT CALIBRATION
             const mapping = [
-                {x: 0, y: 0, z: 0},               // 1: Face idx 4 (+Z)
-                {x: Math.PI/2, y: 0, z: 0},       // 2: Face idx 2 (+Y)
-                {x: 0, y: -Math.PI/2, z: 0},      // 3: Face idx 0 (+X)
-                {x: 0, y: Math.PI/2, z: 0},       // 4: Face idx 1 (-X)
-                {x: -Math.PI/2, y: 0, z: 0},      // 5: Face idx 3 (-Y)
-                {x: 0, y: Math.PI, z: 0}          // 6: Face idx 5 (-Z)
+                {x: 0, y: 0, z: 0},               // 1
+                {x: Math.PI/2, y: 0, z: 0},       // 2
+                {x: 0, y: -Math.PI/2, z: 0},      // 3
+                {x: 0, y: Math.PI/2, z: 0},       // 4
+                {x: -Math.PI/2, y: 0, z: 0},      // 5
+                {x: 0, y: Math.PI, z: 0}          // 6
             ];
             targetRotation = mapping[move-1];
             
@@ -501,11 +495,11 @@
 
         function openCard(data) {
             document.getElementById('card-content').innerHTML = `
-                <div class="text-[12vmin] mb-4">${data.icon}</div>
-                <h3 class="text-blue-500 font-bold uppercase tracking-widest text-[4vmin] mb-2">${data.quest || "Ergo Quest"}</h3>
-                <p class="text-[4.5vmin] font-bold text-blue-600 mb-8 leading-tight">${data.q}</p>
-                <div class="grid grid-cols-1 gap-4">
-                    ${data.a.map((opt, i) => `<button onclick="answer(${i}, ${data.c})" class="bg-blue-500 text-white p-6 rounded-[3vmin] font-medium text-[3.5vmin] shadow-[0_1vmin_0_rgb(29,78,216)] active:translate-y-1 active:shadow-none">${opt}</button>`).join('')}
+                <div class="text-[12vmin] mb-[2vmin]">${data.icon}</div>
+                <h3 class="text-blue-500 font-bold uppercase tracking-widest text-[4vmin] mb-[1vmin]">${data.quest}</h3>
+                <p class="text-[4.5vmin] font-bold text-blue-600 mb-[6vmin] leading-tight">${data.q}</p>
+                <div class="grid grid-cols-1 gap-[2.5vmin]">
+                    ${data.a.map((opt, i) => `<button onclick="answer(${i}, ${data.c})" class="bg-blue-500 text-white py-[2.5vmin] px-[4vmin] rounded-[3vmin] font-medium text-[3.5vmin] shadow-[0_1vmin_0_rgb(29,78,216)] active:translate-y-[0.5vmin] active:shadow-none">${opt}</button>`).join('')}
                 </div>
             `;
             modal.classList.remove('hidden'); setTimeout(() => qBox.classList.add('show-box'), 50);
@@ -516,13 +510,13 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 if (idx === correct) { 
-                    score += 20; flashMsg("EXCELLENT! +20", "bg-green-500"); locked = false;
+                    score += 20; flashMsg("EXCELLENT! +20"); locked = false;
                 } else { 
                     lives--; updateLivesDisplay();
                     if (lives <= 0) { showGameOver(); return; }
                     pos = previousPos; hero.classList.add('hop'); placeHero();
                     setTimeout(() => { hero.classList.remove('hop'); locked = false; }, 600);
-                    score = Math.max(0, score - 5); flashMsg("WRONG! ❤️ LOST", "bg-red-500"); 
+                    score = Math.max(0, score - 5); flashMsg("WRONG! ❤️ LOST"); 
                 }
                 document.getElementById('score').textContent = score;
             }, 350);
@@ -534,28 +528,28 @@
             if (lives === 0) display.textContent = "🖤🖤";
         }
 
-        function flashMsg(txt, colorClass) {
+        function flashMsg(txt) {
             const m = document.createElement('div');
-            m.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border-[1vmin] border-blue-500 text-blue-600 px-12 py-6 rounded-[5vmin] text-[8vmin] font-bold z-[10000] shadow-2xl animate-bounce pointer-events-none`;
+            m.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border-[0.8vmin] border-blue-500 text-blue-600 px-[10vmin] py-[5vmin] rounded-[5vmin] text-[8vmin] font-bold z-[10000] shadow-2xl animate-bounce pointer-events-none`;
             m.textContent = txt; document.body.appendChild(m); setTimeout(() => m.remove(), 2000);
         }
 
         function showGameOver() {
             document.getElementById('card-content').innerHTML = `
-                <span class="text-[15vmin] mb-8 block">🚨</span>
-                <h2 class="text-[10vmin] font-bold text-red-600 mb-4 uppercase">Game Over</h2>
-                <p class="text-[5vmin] text-gray-500 mb-8 font-bold">You ran out of chances!</p>
-                <button onclick="location.reload()" class="bg-red-600 text-white p-10 rounded-[5vmin] font-medium text-[6vmin] shadow-[0_1.5vmin_0_rgb(153,27,27)]">RESTART</button>
+                <span class="text-[15vmin] mb-[4vmin] block">🚨</span>
+                <h2 class="text-[10vmin] font-bold text-red-600 mb-[2vmin] uppercase">Game Over</h2>
+                <p class="text-[5vmin] text-gray-500 mb-[6vmin] font-bold">You ran out of chances!</p>
+                <button onclick="location.reload()" class="bg-red-600 text-white p-[6vmin] rounded-[4vmin] font-medium text-[6vmin] shadow-[0_1.5vmin_0_rgb(153,27,27)]">RESTART</button>
             `;
             modal.classList.remove('hidden'); setTimeout(() => qBox.classList.add('show-box'), 10);
         }
 
         function showWin() {
             document.getElementById('card-content').innerHTML = `
-                <span class="text-[15vmin] mb-8 block">🏆</span>
-                <h2 class="text-[10vmin] font-bold text-blue-600 mb-4">CHAMPION!</h2>
-                <p class="text-[5vmin] text-gray-500 mb-8 font-bold">Total Points: ${score}</p>
-                <button onclick="location.reload()" class="bg-blue-600 text-white p-10 rounded-[5vmin] font-medium text-[6vmin] shadow-[0_1.5vmin_0_rgb(29,78,216)]">REPLAY</button>
+                <span class="text-[15vmin] mb-[4vmin] block">🏆</span>
+                <h2 class="text-[10vmin] font-bold text-blue-600 mb-[2vmin] uppercase">CHAMPION!</h2>
+                <p class="text-[5vmin] text-gray-500 mb-[6vmin] font-bold">Total Points: ${score}</p>
+                <button onclick="location.reload()" class="bg-blue-600 text-white p-[6vmin] rounded-[4vmin] font-medium text-[6vmin] shadow-[0_1.5vmin_0_rgb(29,78,216)]">REPLAY</button>
             `;
             modal.classList.remove('hidden'); setTimeout(() => qBox.classList.add('show-box'), 10);
         }
@@ -566,3 +560,4 @@
     </script>
 </body>
 </html>
+
