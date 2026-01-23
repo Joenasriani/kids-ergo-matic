@@ -378,13 +378,18 @@
                 ctx.fillStyle = 'rgb(59, 130, 246)'; ctx.font = 'bold 640px Fredoka, Arial';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(num, 512, 512);
                 const texture = new THREE.CanvasTexture(canvas);
+                texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
                 return new THREE.MeshBasicMaterial({ map: texture });
             };
 
+            // [+X, -X, +Y, -Y, +Z, -Z]
             const materials = [
-                createFace('3'), createFace('4'), // +X, -X
-                createFace('2'), createFace('5'), // +Y, -Y
-                createFace('1'), createFace('6')  // +Z, -Z
+                createFace('3'), // 0
+                createFace('4'), // 1
+                createFace('2'), // 2
+                createFace('5'), // 3
+                createFace('1'), // 4
+                createFace('6')  // 5
             ];
 
             cube = new THREE.Mesh(geometry, materials);
@@ -459,17 +464,20 @@
             locked = true; isRolling = true;
             previousPos = pos;
             rollVelocity = { x: 0.6 + Math.random() * 0.4, y: 0.6 + Math.random() * 0.4 };
+            
             const move = Math.floor(Math.random() * 6) + 1;
+            
             await new Promise(r => setTimeout(r, 1600));
             isRolling = false;
             
+            // PRECISE UPRIGHT CALIBRATION
             const mapping = [
-                {x: 0, y: 0, z: 0},               // 1: +Z
-                {x: Math.PI/2, y: 0, z: 0},       // 2: +Y
-                {x: 0, y: -Math.PI/2, z: 0},      // 3: +X
-                {x: 0, y: Math.PI/2, z: 0},       // 4: -X
-                {x: -Math.PI/2, y: 0, z: Math.PI},// 5: -Y
-                {x: 0, y: Math.PI, z: 0}          // 6: -Z
+                {x: 0, y: 0, z: 0},               // 1: Face idx 4 (+Z)
+                {x: Math.PI/2, y: 0, z: 0},       // 2: Face idx 2 (+Y)
+                {x: 0, y: -Math.PI/2, z: 0},      // 3: Face idx 0 (+X)
+                {x: 0, y: Math.PI/2, z: 0},       // 4: Face idx 1 (-X)
+                {x: -Math.PI/2, y: 0, z: 0},      // 5: Face idx 3 (-Y)
+                {x: 0, y: Math.PI, z: 0}          // 6: Face idx 5 (-Z)
             ];
             targetRotation = mapping[move-1];
             
