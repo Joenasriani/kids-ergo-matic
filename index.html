@@ -109,15 +109,6 @@
             z-index: 1;
         }
 
-        .tile-finish-glow::after {
-            content: '';
-            position: absolute;
-            inset: 0.8vmin; 
-            background: var(--primary); 
-            border-radius: inherit;
-            z-index: -1;
-        }
-
         .hero-bot {
             width: 8vh;
             height: 8vh;
@@ -205,15 +196,6 @@
             cursor: pointer;
         }
 
-        .action-button::after {
-            content: '';
-            position: absolute;
-            inset: 0.8vmin;
-            background: rgb(59, 130, 246); 
-            border-radius: inherit;
-            z-index: -1;
-        }
-
         .ui-icon {
             background: white;
             border: 0.4vmin solid var(--primary);
@@ -245,9 +227,8 @@
     <div class="app-shell">
         <div id="intro-layer" class="overlay-screen">
             <h1 class="text-[14vh] font-medium uppercase tracking-tighter leading-none">ERGO-MATIC</h1>
-            
             <div class="bg-white/20 p-[4vh] rounded-[4vmin] max-w-[85vh] shadow-2xl border border-white/30">
-                <h2 class="text-[4vh] font-bold mb-[1.5vh] uppercase opacity-90 text-hashtag">How to Play</h2>
+                <h2 class="text-[4vh] font-bold mb-[1.5vh] uppercase opacity-90">How to Play</h2>
                 <ul class="text-[2.8vh] space-y-[1.2vh] text-left opacity-90">
                     <li>🎲 Roll the Cube to move</li>
                     <li>💡 Answer Ergo-Questions Correctly</li>
@@ -255,7 +236,6 @@
                     <li>❤️ Careful! Only 2 chances!</li>
                 </ul>
             </div>
-            
             <button onclick="startGame()" class="action-button text-white font-medium active:translate-y-[1vmin] active:shadow-none">START</button>
         </div>
 
@@ -274,7 +254,7 @@
                     <span id="heart-display" class="text-[5vh] flex gap-[1vmin]">❤️❤️</span>
                 </div>
             </div>
-            <div class="text-[5vh] font-bold text-blue-500 uppercase tracking-widest hidden lg:block text-hashtag">ERGO-MATIC</div>
+            <div class="text-[5vh] font-bold text-blue-500 uppercase tracking-widest hidden lg:block">ERGO-MATIC</div>
             <div class="w-[7vh]"></div>
         </header>
 
@@ -308,18 +288,10 @@
             { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
             { icon: '🤳', quest: 'Tablet', q: 'Watching a movie on a flat table? Best way?', a: ['Hold it flat', 'Use a stand', 'Lie on side'], c: 1 },
             { icon: '⏰', quest: 'Breaks', q: 'How often should you stand up and move?', a: ['Every 30 minutes', 'Every 5 hours', 'Once a day'], c: 0 },
-            { icon: '⌨️', quest: 'Wrists', q: 'Your hands bend up while typing. What should you do?', a: ['Keep wrists flat/straight', 'Rest on desk edge', 'Type with one finger'], c: 0 },
             { icon: '🚶', quest: 'Movement', q: 'What is the best thing after 30 minutes of sitting?', a: ['Sit longer', 'Stand and walk', 'Close eyes'], c: 1 },
-            { icon: '🪟', quest: 'Air', q: 'Why is fresh air important for your workspace?', a: ['Helps focus', 'Cleans keyboard', 'Makes mouse faster'], c: 0 },
-            { icon: '🎧', quest: 'Audio', q: 'How loud should you listen to music in headphones?', a: ['Volume 100%', 'Medium (60/60 rule)', 'Until ears ring'], c: 1 },
-            { icon: '💡', quest: 'Light', q: 'It\'s getting dark and eyes are tired. Help!', a: ['Turn on a lamp', 'Sit in dark', 'Stare harder'], c: 0 },
             { icon: '🏃', quest: 'Eye Care', q: 'What is the 20-20-20 rule for your eyes?', a: ['Stare for 20 mins', 'Look far away every 20m', 'Blink 20 times'], c: 1 },
             { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
-            { icon: '💪', quest: 'Shoulders', q: 'Your shoulders are up by your ears while typing.', a: ['Hold them tight', 'Relax them down', 'Shrug them more'], c: 1 },
             { icon: '📐', quest: 'Elbows', q: 'What angle should your elbows be while typing?', a: ['Straight out', '90 degrees (L shape)', 'Bent all the way'], c: 1 },
-            { icon: '☀️', quest: 'Glare', q: 'The sun is reflecting off your screen!', a: ['Close the blinds', 'Squint your eyes', 'Sit closer'], c: 0 },
-            { icon: '👟', quest: 'Walking', q: 'To walk with great posture, how should your body be aligned?', a: ['Leaning way back', 'Tall with eyes looking ahead', 'Hunched over your phone'], c: 1 },
-            { icon: '📝', quest: 'Writing', q: 'Writing with a pen? Your hand feels cramped.', a: ['Grip tighter', 'Loosen your grip', 'Stop writing forever'], c: 1 },
             { icon: '🌟', quest: 'Goal', q: 'What is the most important part of ergonomics?', a: ['Buying a new chair', 'Moving and changing posture', 'Getting a bigger screen'], c: 1 }
         ];
 
@@ -372,9 +344,10 @@
                     threeCube.rotation.y += diceRollVelocity.y;
                     diceRollVelocity.x *= 0.985; diceRollVelocity.y *= 0.985;
                 } else {
-                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.15;
-                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.15;
-                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.15;
+                    // Smooth transition to target with no reverse jitter
+                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.12;
+                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.12;
+                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.12;
                 }
                 threeRenderer.render(threeScene, threeCamera);
             };
@@ -426,14 +399,16 @@
             if (isActionLocked || rollingActive) return;
             isActionLocked = true; rollingActive = true;
             oldPos = currentPos;
-            diceRollVelocity = { x: 0.6 + Math.random() * 0.4, y: 0.6 + Math.random() * 0.4 };
             
+            // Generate a random roll count
             const moveSteps = Math.floor(Math.random() * 6) + 1;
             
-            await new Promise(res => setTimeout(res, 1600));
-            rollingActive = false;
+            // Set rotation speed based on the roll (cleaner transition)
+            diceRollVelocity = { x: 0.4 + Math.random() * 0.2, y: 0.4 + Math.random() * 0.2 };
             
-            // STRICT STRAIGHT NUMBERS
+            await new Promise(res => setTimeout(res, 1200));
+            
+            // CALIBRATION MAPPING - Straight Upright Numbers
             const calibration = [
                 {x: 0, y: 0, z: 0},               // 1
                 {x: -Math.PI/2, y: 0, z: 0},      // 2
@@ -442,17 +417,23 @@
                 {x: Math.PI/2, y: 0, z: 0},       // 5
                 {x: 0, y: Math.PI, z: 0}          // 6
             ];
-            diceTargetRotation = calibration[moveSteps-1];
             
+            diceTargetRotation = calibration[moveSteps-1];
+            rollingActive = false; // Stop the manual rotation and let the lerp finish it smoothly
+
             await new Promise(res => setTimeout(res, 800));
+
+            // Sync Robot movement to Dice Number
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
-                    currentPos++; robot.classList.add('jump-animation'); positionRobot();
+                    currentPos++; 
+                    robot.classList.add('jump-animation'); 
+                    positionRobot();
                     await new Promise(res => setTimeout(res, 600));
                     robot.classList.remove('jump-animation');
                 }
             }
-            await new Promise(res => setTimeout(res, 700));
+            await new Promise(res => setTimeout(res, 500));
             resolveLanding();
         }
 
@@ -513,7 +494,7 @@
         function renderWin() {
             document.getElementById('modal-content-area').innerHTML = `
                 <div class="text-[12vh] mb-[2vh]">🏆</div>
-                <div class="text-[9vh] font-bold text-blue-600 mb-[2vh] uppercase text-hashtag">CHAMPION!</div>
+                <div class="text-[9vh] font-bold text-blue-600 mb-[2vh] uppercase">CHAMPION!</div>
                 <div class="text-[4.5vh] text-gray-500 mb-[5vh] font-bold">Total Points: ${currentScore}</div>
                 <button onclick="location.reload()" class="bg-blue-600 text-white py-[3vh] px-[8vh] rounded-[2.5vmin] font-medium text-[6vh] shadow-[0_1.2vmin_0_rgb(29,78,216)]">REPLAY</button>
             `;
