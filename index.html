@@ -1,156 +1,529 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ERGO-MATIC</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ERGO-MATIC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap');
 
-        :root {
-            --primary: rgb(59, 130, 246);
-            --bg-blue: rgb(224, 242, 254);
-            --outer-margin-bg: rgb(191, 219, 254);
-            --btn-deep: rgba(255, 255, 255, 0.2); 
-            --btn-shadow: rgba(0, 0, 0, 0.15);
-        }
+        :root {
+            --primary: rgb(59, 130, 246);
+            --bg-blue: rgb(224, 242, 254);
+            --outer-margin-bg: rgb(191, 219, 254);
+            --btn-deep: rgba(255, 255, 255, 0.2); 
+            --btn-shadow: rgba(0, 0, 0, 0.15);
+        }
 
-        body {
-            font-family: 'Fredoka', sans-serif;
-            background: var(--outer-margin-bg);
-            touch-action: manipulation;
-            user-select: none;
-            overflow: hidden;
-            height: 100dvh;
-            margin: 0;
-            padding: 2vmin;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--outer-margin-bg);
+            touch-action: manipulation;
+            user-select: none;
+            overflow: hidden;
+            height: 100dvh;
+            margin: 0;
+            padding: 2vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-        .app-shell {
-            width: 100%;
-            height: 100%;
-            background: var(--bg-blue);
-            border-radius: 4vmin;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 4vmin 10vmin -2vmin rgba(0,0,0,0.25);
-            border: 0.8vmin solid white;
-        }
+        .app-shell {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-blue);
+            border-radius: 4vmin;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4vmin 10vmin -2vmin rgba(0,0,0,0.25);
+            border: 0.8vmin solid white;
+        }
 
-        header {
-            flex-shrink: 0;
-            height: 15vh;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 5vmin;
-            border-bottom: 0.5vmin solid var(--outer-margin-bg);
-            z-index: 10;
-        }
+        header {
+            flex-shrink: 0;
+            height: 15vh;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5vmin;
+            border-bottom: 0.5vmin solid var(--outer-margin-bg);
+            z-index: 10;
+        }
 
-        main.game-arena {
-            flex: 1;
-            position: relative;
-            background: radial-gradient(rgb(191,219,254) 0.3vmin, transparent 0.3vmin);
-            background-size: 6vmin 6vmin;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            padding: 2vmin;
-        }
+        main.game-arena {
+            flex: 1;
+            position: relative;
+            background: radial-gradient(rgb(191,219,254) 0.3vmin, transparent 0.3vmin);
+            background-size: 6vmin 6vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 2vmin;
+        }
 
-        .board-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 3vmin;
-            width: 100%;
-            max-width: 110vmin;
-            max-height: 100%;
-            align-content: center;
-            justify-items: center;
-        }
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 3vmin;
+            width: 100%;
+            max-width: 110vmin;
+            max-height: 100%;
+            align-content: center;
+            justify-items: center;
+        }
 
-        .tile {
-            width: 100%;
-            aspect-ratio: 1;
-            max-width: 12vh;
-            max-height: 12vh;
-            border-radius: 3vmin;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            border: 0.6vmin solid rgb(186, 230, 253);
-            box-shadow: 0 1vmin 0 rgb(186, 230, 253);
-            position: relative;
-            font-size: 7vmin;
-            transition: transform 0.2s;
-        }
+        .tile {
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 12vh;
+            max-height: 12vh;
+            border-radius: 3vmin;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 0.6vmin solid rgb(186, 230, 253);
+            box-shadow: 0 1vmin 0 rgb(186, 230, 253);
+            position: relative;
+            font-size: 7vmin;
+            transition: transform 0.2s;
+        }
 
-        .tile-active {
-            border-color: var(--primary);
-            box-shadow: 0 1vmin 0 rgb(37, 99, 235);
-            transform: scale(1.1);
-        }
+        .tile-active {
+            border-color: var(--primary);
+            box-shadow: 0 1vmin 0 rgb(37, 99, 235);
+            transform: scale(1.1);
+        }
 
-        .tile-finish-glow {
-            background: var(--primary) !important;
-            border-color: white !important;
-            overflow: hidden;
-            z-index: 1;
-        }
+        .tile-finish-glow {
+            background: var(--primary) !important;
+            border-color: white !important;
+            overflow: hidden;
+            z-index: 1;
+        }
 
-        .hero-bot {
-            width: 8vh;
-            height: 8vh;
-            position: absolute;
-            z-index: 100;
-            font-size: 7vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
-            filter: drop-shadow(0 1vmin 1.5vmin rgba(0,0,0,0.4));
-            will-change: left, top;
-        }
+        .hero-bot {
+            width: 8vh;
+            height: 8vh;
+            position: absolute;
+            z-index: 100;
+            font-size: 7vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            filter: drop-shadow(0 1vmin 1.5vmin rgba(0,0,0,0.4));
+            will-change: left, top;
+        }
 
-        .jump-animation { animation: robot-hop 0.5s ease; }
-        @keyframes robot-hop {
-            0%, 100% { transform: translateY(0); filter: drop-shadow(0 1vmin 1.5vmin rgba(0,0,0,0.4)); }
-            50% { transform: translateY(-12vh) scale(1.4); filter: drop-shadow(0 5vmin 3vmin rgba(0,0,0,0.2)); }
-        }
+        .jump-animation { animation: robot-hop 0.5s ease; }
+        @keyframes robot-hop {
+            0%, 100% { transform: translateY(0); filter: drop-shadow(0 1vmin 1.5vmin rgba(0,0,0,0.4)); }
+            50% { transform: translateY(-12vh) scale(1.4); filter: drop-shadow(0 5vmin 3vmin rgba(0,0,0,0.2)); }
+        }
 
-        .control-panel {
-            flex-shrink: 0;
-            height: 25vh;
-            background: rgba(255, 255, 255, 0.95);
-            border-top: 0.6vmin solid var(--outer-margin-bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
+        .control-panel {
+            flex-shrink: 0;
+            height: 25vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 0.6vmin solid var(--outer-margin-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
 
-        .canvas-dice-area {
-            height: 80%;
-            width: 100%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        .canvas-dice-area {
+            height: 80%;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-        .quest-card-modal {
-            background: white;
+        .quest-card-modal {
+            background: white;
+            border-radius: 6vmin;
+            width: 90%;
+            max-width: 95vmin;
+            max-height: 85vh;
+            padding: 6vmin;
+            box-shadow: 0 6vmin 12vmin -2vmin rgba(0,0,0,0.6);
+            text-align: center;
+            transform: scale(0.5) translateY(10vmin);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow-y: auto;
+        }
+
+        .active-modal { transform: scale(1) translateY(0); opacity: 1; }
+
+        .overlay-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--primary);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            padding: 5vh;
+            color: white;
+            text-align: center;
+        }
+
+        .action-button {
+            background-color: var(--btn-deep);
+            box-shadow: 0 1.5vmin 0 var(--btn-shadow);
+            border: 0.3vmin solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            font-size: 8vh;
+            padding: 2vh 12vh;
+            border-radius: 4vmin;
+            backdrop-filter: blur(1.5vmin);
+            cursor: pointer;
+        }
+
+        .ui-icon {
+            background: white;
+            border: 0.4vmin solid var(--primary);
+            border-radius: 2vmin;
+            width: 7vh;
+            height: 7vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4vh;
+            box-shadow: 0 0.6vmin 0 var(--primary);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .stat-badge {
+            display: flex;
+            gap: 1.5vmin;
+            align-items: center;
+            background: rgb(255, 245, 245);
+            padding: 1vh 3vmin;
+            border-radius: 3vmin;
+            border: 0.4vmin solid rgb(254, 226, 226);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <div id="intro-layer" class="overlay-screen">
+            <h1 class="text-[14vh] font-medium uppercase tracking-tighter leading-none">E R G O - M A T I C </h1>
+            <div class="bg-white/20 p-[4vh] rounded-[4vmin] max-w-[85vh] shadow-2xl border border-white/30">
+                <h2 class="text-[4vh] font-bold mb-[1.5vh] uppercase opacity-90">How to Play</h2>
+                <ul class="text-[2.8vh] space-y-[1.2vh] text-left opacity-90">
+                    <li>🎲 Roll the Cube to move</li>
+                    <li>💡 Answer Ergo-Questions Correctly</li>
+                    <li>💎 Collect Points</li>
+                    <li>❤️ Careful! Only 2 chances!</li>
+                </ul>
+            </div>
+            <button onclick="startGame()" class="action-button text-white font-medium active:translate-y-[1vmin] active:shadow-none">START</button>
+        </div>
+
+        <div class="fixed top-[4vmin] right-[4vmin] flex gap-[3vmin] z-[4000]">
+            <div onclick="location.reload()" class="ui-icon">🏠</div>
+            <div onclick="toggleFullscreen()" class="ui-icon">⛶</div>
+        </div>
+
+        <header>
+            <div class="flex items-center gap-[5vmin]">
+                <div class="flex items-center gap-[2vmin] bg-blue-50 px-[3vmin] py-[0.8vh] rounded-[3vmin] border-[0.4vmin] border-blue-100">
+                    <span class="text-[6vh]">💎</span>
+                    <span id="score-val" class="text-[6vh] font-bold text-blue-600">0</span>
+                </div>
+                <div class="stat-badge">
+                    <span id="heart-display" class="text-[5vh] flex gap-[1vmin]">❤️❤️</span>
+                </div>
+            </div>
+            <div class="text-[5vh] font-bold text-blue-500 uppercase tracking-widest hidden lg:block">E R G O - M A T I C </div>
+            <div class="w-[7vh]"></div>
+        </header>
+
+        <main class="game-arena" id="game-container">
+            <div id="grid-path" class="board-grid"></div>
+            <div id="robot-hero" class="hero-bot">🤖</div>
+        </main>
+
+        <footer class="control-panel">
+            <div id="3d-dice-container" class="canvas-dice-area"></div>
+            <p class="font-bold text-blue-500 uppercase text-[2.5vh] tracking-widest mt-[1vh]">ROLL THE CUBE!</p>
+        </footer>
+
+        <div id="modal-overlay" class="fixed inset-0 bg-black/85 backdrop-blur-xl hidden z-[6000] flex items-center justify-center p-[5vmin]">
+            <div id="quest-box" class="quest-card-modal">
+                <div id="modal-content-area"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ERGO_BANK = [
+            { icon: '🏠', quest: 'Ready?', q: 'What is Ergonomics?', a: ['The study of plant growth', 'Fitting the task to the person', 'Designing fast racing cars'], c: 1 },
+            { icon: '💻', quest: 'Monitor', q: 'Where should the top of your screen be?', a: ['At eye level', 'Below your chin', 'Touching the ceiling'], c: 0 },
+            { icon: '⌨️', quest: 'Keyboard', q: 'How should your wrists be while typing?', a: ['Bent upwards', 'Bent downwards', 'Neutral and straight'], c: 2 },
+            { icon: '🎒', quest: 'Backpack', q: 'Is your bag heavy?', a: ['Use one strap', 'Tighten both straps high', 'Carry in your hand'], c: 1 },
+            { icon: '📱', quest: 'Phone', q: 'Looking down at your phone hurts your neck.', a: ['Rest on belly', 'Hold phone at eye level', 'Keep looking down'], c: 1 },
+            { icon: '鼠标', quest: 'Mouse', q: 'How should your hand rest on a computer mouse?', a: ['Squeeze it tight', 'Lightly and relaxed', 'Using only two fingers'], c: 1 },
+            { icon: '💧', quest: 'Hydration', q: 'Why is drinking water good for ergonomics?', a: ['It makes you move', 'It makes you faster', 'It cleans the screen'], c: 0 },
+            { icon: '🪑', quest: 'Feet', q: 'Your feet don\'t touch the floor. What is the fix?', a: ['Swing legs', 'Use a box rest', 'Sit on knees'], c: 1 },
+            { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
+            { icon: '🛋️', quest: 'Posture', q: 'What is the best way to sit at a desk?', a: ['Slouching forward', 'Back supported and upright', 'Feet dangling'], c: 1 },
+            { icon: '🚶‍♂️', quest: 'Movement', q: 'How should you sit for a long time?', a: ['Keep perfectly still', 'Change positions often', 'Lean to one side'], c: 1 },
+            { icon: '⏰', quest: 'Breaks', q: 'How often should you stand up and move?', a: ['Every 30 minutes', 'Every 5 hours', 'Once a day'], c: 0 },
+            { icon: '🏃', quest: 'Eye Care', q: 'What is the 20-20-20 rule for your eyes?', a: ['Stare for 20 mins', 'Look far away every 20m', 'Blink 20 times'], c: 1 },
+            { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
+            { icon: '📐', quest: 'Elbows', q: 'What angle should your elbows be while typing?', a: ['Straight out', '90 degrees (L shape)', 'Bent all the way'], c: 1 },
+            { icon: '🌟', quest: 'Goal', q: 'What is the most important part of ergonomics?', a: ['Buying a new chair', 'Moving and changing posture', 'Getting a bigger screen'], c: 1 }
+        ];
+
+        let currentPos = 0, oldPos = 0, currentScore = 0, isActionLocked = false, userLives = 2;
+        let activeLevels = [];
+        const gameMain = document.getElementById('game-container'), pathGrid = document.getElementById('grid-path'), robot = document.getElementById('robot-hero'), modalLayer = document.getElementById('modal-overlay');
+        const modalContainer = document.getElementById('quest-box'), diceSlot = document.getElementById('3d-dice-container');
+
+        let threeScene, threeCamera, threeRenderer, threeCube, rollingActive = false, diceTargetRotation = { x: 0, y: 0, z: 0 };
+        let inactivityTimeout;
+        const TIME_LIMIT = 180000; 
+
+        function triggerAutoReset() { location.reload(); }
+        function refreshIdleTimer() { clearTimeout(inactivityTimeout); inactivityTimeout = setTimeout(triggerAutoReset, TIME_LIMIT); }
+
+        function start3DEngine() {
+            threeScene = new THREE.Scene();
+            threeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+            threeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            threeRenderer.setPixelRatio(window.devicePixelRatio);
+            diceSlot.appendChild(threeRenderer.domElement);
+            resizeDice();
+
+            const cubeGeometry = new THREE.BoxGeometry(2.8, 2.8, 2.8);
+            const generateDieFace = (digit) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1024; canvas.height = 1024;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white'; ctx.fillRect(0, 0, 1024, 1024);
+                ctx.strokeStyle = 'rgb(59, 130, 246)'; ctx.lineWidth = 80; ctx.strokeRect(40, 40, 944, 944);
+                ctx.fillStyle = 'rgb(59, 130, 246)'; ctx.font = 'bold 640px Fredoka, Arial';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(digit, 512, 512);
+                const texture = new THREE.CanvasTexture(canvas);
+                return new THREE.MeshBasicMaterial({ map: texture });
+            };
+
+            const faceMaterials = [
+                generateDieFace('3'), // +X
+                generateDieFace('4'), // -X
+                generateDieFace('5'), // +Y
+                generateDieFace('2'), // -Y
+                generateDieFace('1'), // +Z
+                generateDieFace('6')  // -Z
+            ];
+
+            threeCube = new THREE.Mesh(cubeGeometry, faceMaterials);
+            threeScene.add(threeCube); threeCamera.position.z = 7;
+
+            const renderLoop = () => {
+                requestAnimationFrame(renderLoop);
+                if (rollingActive) {
+                    threeCube.rotation.x += 0.45;
+                    threeCube.rotation.y += 0.35;
+                } else {
+                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.15;
+                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.15;
+                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.15;
+                }
+                threeRenderer.render(threeScene, threeCamera);
+            };
+            renderLoop();
+        }
+
+        function resizeDice() {
+            const size = Math.min(diceSlot.offsetWidth, diceSlot.offsetHeight);
+            if (size <= 0) return;
+            threeRenderer.setSize(size, size);
+            threeCamera.aspect = 1; threeCamera.updateProjectionMatrix();
+        }
+
+        function buildGameBoard() {
+            const starter = ERGO_BANK[0];
+            const questionPool = ERGO_BANK.slice(1).sort(() => Math.random() - 0.5);
+            activeLevels = [starter, ...questionPool.slice(0, 16)];
+            activeLevels.push({ type: 'finish', icon: '🏆', quest: 'Champion', q: '', a: [], c: 0 });
+
+            pathGrid.innerHTML = '';
+            activeLevels.forEach((node, idx) => {
+                const square = document.createElement('div');
+                square.className = 'tile';
+                square.id = `square-${idx}`;
+                square.innerHTML = idx === 0 ? '🏠' : node.icon;
+                if (node.type === 'finish') square.classList.add('tile-finish-glow');
+                pathGrid.appendChild(square);
+            });
+            setTimeout(positionRobot, 300);
+        }
+
+        function positionRobot() {
+            const destSquare = document.getElementById(`square-${currentPos}`);
+            if (!destSquare) return;
+            const containerBounds = gameMain.getBoundingClientRect();
+            const targetBounds = destSquare.getBoundingClientRect();
+            const posX = (targetBounds.left - containerBounds.left + (targetBounds.width / 2) - (robot.offsetWidth / 2));
+            const posY = (targetBounds.top - containerBounds.top + (targetBounds.height / 2) - (robot.offsetHeight / 2));
+            robot.style.left = posX + 'px'; robot.style.top = posY + 'px';
+            document.querySelectorAll('.tile').forEach(tile => tile.classList.remove('tile-active'));
+            destSquare.classList.add('tile-active');
+        }
+
+        function startGame() { 
+            document.getElementById('intro-layer').classList.add('hidden'); 
+            setTimeout(resizeDice, 150); refreshIdleTimer();
+        }
+
+        async function rollAction() {
+            if (isActionLocked) return;
+            isActionLocked = true; 
+            oldPos = currentPos;
+            
+            let dieResult = Math.floor(Math.random() * 6) + 1;
+            
+            let moveSteps = dieResult;
+            if (dieResult === 2) moveSteps = 5;
+            else if (dieResult === 5) moveSteps = 2;
+            
+            rollingActive = true;
+            await new Promise(res => setTimeout(res, 800));
+
+            const targets = [
+                {x: 0, y: 0, z: 0},                 // 1: +Z
+                {x: Math.PI/2, y: 0, z: 0},         // 2: -Y
+                {x: 0, y: -Math.PI/2, z: 0},        // 3: +X
+                {x: 0, y: Math.PI/2, z: 0},         // 4: -X
+                {x: -Math.PI/2, y: 0, z: 0},        // 5: +Y
+                {x: 0, y: Math.PI, z: 0}            // 6: -Z
+            ];
+
+            const selected = targets[dieResult-1];
+            
+            diceTargetRotation = {
+                x: Math.round(threeCube.rotation.x / (Math.PI * 2)) * (Math.PI * 2) + selected.x,
+                y: Math.round(threeCube.rotation.y / (Math.PI * 2)) * (Math.PI * 2) + selected.y,
+                z: Math.round(threeCube.rotation.z / (Math.PI * 2)) * (Math.PI * 2) + selected.z
+            };
+
+            rollingActive = false;
+            await new Promise(res => setTimeout(res, 1200));
+
+            for (let s = 0; s < moveSteps; s++) {
+                if (currentPos < activeLevels.length - 1) {
+                    currentPos++; 
+                    robot.classList.add('jump-animation'); 
+                    positionRobot();
+                    await new Promise(res => setTimeout(res, 600));
+                    robot.classList.remove('jump-animation');
+                }
+            }
+            await new Promise(res => setTimeout(res, 300));
+            resolveLanding();
+        }
+
+        function resolveLanding() {
+            const data = activeLevels[currentPos];
+            if (data.type === 'finish') renderWin(); else displayQuest(data);
+        }
+
+        function displayQuest(data) {
+            document.getElementById('modal-content-area').innerHTML = `
+                <div class="text-[10vh] mb-[2vh]">${data.icon}</div>
+                <div class="text-blue-500 font-bold uppercase tracking-widest text-[3.5vh] mb-[1vh]">${data.quest}</div>
+                <div class="text-[4.2vh] font-bold text-blue-600 mb-[5vh] leading-tight">${data.q}</div>
+                <div class="grid grid-cols-1 gap-[2.5vh]">
+                    ${data.a.map((opt, i) => `<button onclick="handleAnswer(${i}, ${data.c})" class="bg-blue-500 text-white py-[2vh] px-[4vh] rounded-[2.5vmin] font-medium text-[3.5vh] shadow-[0_1vmin_0_rgb(29,78,216)] active:translate-y-[0.5vmin] active:shadow-none">${opt}</button>`).join('')}
+                </div>
+            `;
+            modalLayer.classList.remove('hidden'); setTimeout(() => modalContainer.classList.add('active-modal'), 50);
+        }
+
+        window.handleAnswer = (pick, correct) => {
+            modalContainer.classList.remove('active-modal');
+            setTimeout(() => {
+                modalLayer.classList.add('hidden');
+                if (pick === correct) { 
+                    currentScore += 20; notifyFeedback("EXCELLENT! +20"); isActionLocked = false;
+                } else { 
+                    userLives--; updateHearts();
+                    if (userLives <= 0) { renderGameOver(); return; }
+                    currentPos = oldPos; positionRobot();
+                    setTimeout(() => { isActionLocked = false; }, 600);
+                    currentScore = Math.max(0, currentScore - 5); notifyFeedback("WRONG! ❤️ LOST"); 
+                }
+                document.getElementById('score-val').textContent = currentScore;
+            }, 350);
+        };
+
+        function updateHearts() {
+            const heartBar = document.getElementById('heart-display');
+            heartBar.textContent = "❤️".repeat(userLives);
+        }
+
+        function notifyFeedback(message) {
+            const popup = document.createElement('div');
+            popup.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border-[1vmin] border-blue-500 text-blue-600 px-[8vmin] py-[4vmin] rounded-[5vmin] text-[10vh] font-bold z-[10000] shadow-2xl animate-bounce pointer-events-none`;
+            popup.textContent = message; document.body.appendChild(popup); setTimeout(() => popup.remove(), 2000);
+        }
+
+        function renderGameOver() {
+            document.getElementById('modal-content-area').innerHTML = `
+                <div class="text-[12vh] mb-[2vh]">🚨</div>
+                <div class="text-[9vh] font-bold text-red-600 mb-[1vh] uppercase leading-none">Game Over</div>
+                <div class="text-[4vh] text-red-400 font-thin mb-[4vh] uppercase tracking-wide">remember to take care of your body every day!</div>
+                <button onclick="location.reload()" class="bg-red-600 text-white py-[3vh] px-[8vh] rounded-[2.5vmin] font-medium text-[6vh] shadow-[0_1.5vmin_0_rgb(153,27,27)] active:translate-y-[1vmin] active:shadow-none">RESTART</button>
+            `;
+            modalLayer.classList.remove('hidden'); setTimeout(() => modalContainer.classList.add('active-modal'), 10);
+        }
+
+        function renderWin() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                zIndex: 7000
+            });
+
+            document.getElementById('modal-content-area').innerHTML = `
+                <div class="text-[12vh] mb-[2vh]">🏆</div>
+                <div class="text-[9vh] font-bold text-blue-600 mb-[2vh] uppercase">CHAMPION!</div>
+                <div class="text-[4.5vh] text-gray-500 mb-[5vh] font-bold">Total Points: ${currentScore}</div>
+                <button onclick="location.reload()" class="bg-blue-600 text-white py-[3vh] px-[8vh] rounded-[2.5vmin] font-medium text-[6vh] shadow-[0_1.2vmin_0_rgb(29,78,216)] active:translate-y-[1vmin] active:shadow-none">REPLAY</button>
+            `;
+            modalLayer.classList.remove('hidden'); setTimeout(() => modalContainer.classList.add('active-modal'), 10);
+        }
+
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+
+        ['mousedown', 'mousemove', 'keypress', 'touchstart', 'click'].forEach(signal => window.addEventListener(signal, refreshIdleTimer, true));
+
+        diceSlot.addEventListener('click', rollAction);
+        window.onload = () => { start3DEngine(); buildGameBoard(); };
+        window.onresize = () => { resizeDice(); positionRobot(); };
+    </script>
+</body>
+</html>
