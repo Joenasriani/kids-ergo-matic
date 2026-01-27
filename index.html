@@ -358,6 +358,7 @@
                 } else if (diceLerpFactor < 1) {
                     diceLerpFactor += 0.045; 
                     threeCube.quaternion.slerp(diceTargetQuaternion, Math.min(diceLerpFactor, 1));
+                    threeCube.quaternion.normalize();
                 }
                 threeRenderer.render(threeScene, threeCamera);
             };
@@ -419,23 +420,23 @@
             rollingActive = false;
             
             const euler = new THREE.Euler();
+            // FIXED ROTATION LOCKS: Absolute coordinates for straight landing
             const calibration = [
                 {x: 0, y: 0, z: 0},                   // 1
                 {x: -Math.PI / 2, y: 0, z: 0},        // 2
                 {x: 0, y: -Math.PI / 2, z: 0},        // 3
                 {x: 0, y: Math.PI / 2, z: 0},         // 4
-                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5
-                {x: 0, y: Math.PI, z: 0}              // 6
+                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5 (Straight Upright)
+                {x: 0, y: Math.PI, z: 0}              // 6 (Straight Upright)
             ];
             
             const target = calibration[moveSteps-1];
-            euler.set(target.x, target.y, target.z);
+            euler.set(target.x, target.y, target.z, 'YXZ');
             diceTargetQuaternion.setFromEuler(euler);
             diceLerpFactor = 0; 
 
             await new Promise(res => setTimeout(res, 1000));
             
-            // THE FIX: Loop runs exactly 'moveSteps' times
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
