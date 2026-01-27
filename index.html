@@ -97,11 +97,25 @@
             transition: transform 0.2s;
         }
 
+        .tile-active {
+            border-color: var(--primary);
+            box-shadow: 0 1vmin 0 rgb(37, 99, 235);
+            transform: scale(1.1);
+        }
+
+        .tile-finish-glow {
+            background: var(--primary) !important;
+            border-color: white !important;
+            overflow: hidden;
+            z-index: 1;
+        }
+
         .hero-bot {
-            width: 10vh;
-            height: 10vh;
+            width: 8vh;
+            height: 8vh;
             position: absolute;
             z-index: 100;
+            font-size: 7vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -111,15 +125,10 @@
             will-change: left, top;
         }
 
-        .robot-svg {
-            width: 100%;
-            height: 100%;
-        }
-
         .jump-animation { animation: robot-hop 0.5s ease; }
         @keyframes robot-hop {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12vh) scale(1.4); }
+            0%, 100% { transform: translateY(0); filter: drop-shadow(0 1vmin 1.5vmin rgba(0,0,0,0.4)); }
+            50% { transform: translateY(-12vh) scale(1.4); filter: drop-shadow(0 5vmin 3vmin rgba(0,0,0,0.2)); }
         }
 
         .control-panel {
@@ -133,55 +142,15 @@
             justify-content: center;
             position: relative;
         }
-    </style>
-</head>
-<body>
-    <div class="app-shell">
-        <header>
-            <div class="text-2xl font-bold text-blue-600">ERGO-MATIC</div>
-            <div class="flex gap-4">
-                <div class="bg-blue-50 px-4 py-2 rounded-full border-2 border-blue-200">
-                    <span class="text-blue-400 font-bold">POS:</span>
-                    <span id="pos-display" class="text-blue-600 font-bold">1</span>
-                </div>
-            </div>
-        </header>
 
-        <main class="game-arena">
-            <div id="hero" class="hero-bot">
-                <svg class="robot-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2V5M12 5C15.3137 5 18 7.68629 18 11V16C18 19.3137 15.3137 22 12 22C8.68629 22 6 19.3137 6 16V11C6 7.68629 8.68629 5 12 5ZM12 5V2M9 11V12M15 11V12M8 16H16" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="9" cy="11" r="1" fill="#2563eb"/>
-                    <circle cx="15" cy="11" r="1" fill="#2563eb"/>
-                </svg>
-            </div>
-            <div class="board-grid" id="board">
-                </div>
-        </main>
-
-        <div class="control-panel">
-            <button onclick="rollDice()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold text-xl shadow-lg transition-all active:scale-95">
-                ROLL DICE
-            </button>
-        </div>
-    </div>
-
-    <script>
-        // Game Logic simplified for demo
-        const board = document.getElementById('board');
-        for (let i = 1; i <= 30; i++) {
-            const tile = document.createElement('div');
-            tile.className = 'tile';
-            tile.innerText = i;
-            tile.id = `tile-${i}`;
-            board.appendChild(tile);
+        .canvas-dice-area {
+            height: 80%;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        function rollDice() {
-            const hero = document.getElementById('hero');
-            hero.classList.add('jump-animation');
-            setTimeout(() => hero.classList.remove('jump-animation'), 500);
-        }
-    </script>
-</body>
-</html>
+        .quest-card-modal {
+            background: white;
