@@ -182,18 +182,47 @@
             text-align: center;
         }
 
+        /* START BUTTON WITH ANIMATED STROKE */
         .action-button {
             background-color: var(--btn-deep);
             box-shadow: 0 1.5vmin 0 var(--btn-shadow);
             border: 0.3vmin solid rgba(255, 255, 255, 0.3);
             position: relative;
-            overflow: hidden;
             z-index: 1;
             font-size: 8vh;
             padding: 2vh 12vh;
             border-radius: 4vmin;
             backdrop-filter: blur(1.5vmin);
             cursor: pointer;
+            outline: none;
+        }
+
+        .stroke-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: 4vmin;
+        }
+
+        .stroke-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .stroke-rect {
+            fill: none;
+            stroke: white;
+            stroke-width: 1.2vmin;
+            stroke-linecap: round;
+            /* Dash array roughly matches perimeter for the loop */
+            stroke-dasharray: 200 800;
+            animation: stroke-loop 5s linear infinite;
+        }
+
+        @keyframes stroke-loop {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
         }
 
         .ui-icon {
@@ -236,7 +265,15 @@
                     <li>❤️ Careful! Only 2 chances!</li>
                 </ul>
             </div>
-            <button onclick="startGame()" class="action-button text-white font-medium active:translate-y-[1vmin] active:shadow-none">START</button>
+            
+            <button onclick="startGame()" class="action-button text-white font-medium active:translate-y-[1vmin] active:shadow-none">
+                <div class="stroke-container">
+                    <svg class="stroke-svg">
+                        <rect x="0" y="0" width="100%" height="100%" rx="4vmin" class="stroke-rect" />
+                    </svg>
+                </div>
+                START
+            </button>
         </div>
 
         <div class="fixed top-[4vmin] right-[4vmin] flex gap-[3vmin] z-[4000]">
@@ -279,7 +316,7 @@
         const ERGO_BANK = [
             { icon: '🏠', quest: 'Ready?', q: 'What is Ergonomics?', a: ['The study of plant growth', 'Fitting the task to the person', 'Designing fast racing cars'], c: 1 },
             { icon: '💻', quest: 'Monitor', q: 'Where should the top of your screen be?', a: ['At eye level', 'Below your chin', 'Touching the ceiling'], c: 0 },
-            { icon: '⌨️', quest: 'Keyboard', q: 'How should your wrists be while typing?', a: ['Bent upwards', 'Bent downwards', 'Neutral and straight'], c: 2 },
+            { icon: 'Keyboard', quest: 'Keyboard', q: 'How should your wrists be while typing?', a: ['Bent upwards', 'Bent downwards', 'Neutral and straight'], c: 2 },
             { icon: '🎒', quest: 'Backpack', q: 'Is your bag heavy?', a: ['Use one strap', 'Tighten both straps high', 'Carry in your hand'], c: 1 },
             { icon: '📱', quest: 'Phone', q: 'Looking down at your phone hurts your neck.', a: ['Rest on belly', 'Hold phone at eye level', 'Keep looking down'], c: 1 },
             { icon: '🖱️', quest: 'Mouse', q: 'How should your hand rest on a computer mouse?', a: ['Squeeze it tight', 'Lightly and relaxed', 'Using only two fingers'], c: 1 },
@@ -402,10 +439,7 @@
             isActionLocked = true; 
             oldPos = currentPos;
             
-            // Generate visual result
             let dieResult = Math.floor(Math.random() * 6) + 1;
-            
-            // SWAP TEST: 2 die result = 5 jumps; 5 die result = 2 jumps.
             let moveSteps = dieResult;
             if (dieResult === 2) moveSteps = 5;
             else if (dieResult === 5) moveSteps = 2;
@@ -414,16 +448,15 @@
             await new Promise(res => setTimeout(res, 800));
 
             const targets = [
-                {x: 0, y: 0, z: 0},                 // 1: +Z
-                {x: Math.PI/2, y: 0, z: 0},         // 2: -Y
-                {x: 0, y: -Math.PI/2, z: 0},        // 3: +X
-                {x: 0, y: Math.PI/2, z: 0},         // 4: -X
-                {x: -Math.PI/2, y: 0, z: 0},        // 5: +Y
-                {x: 0, y: Math.PI, z: 0}            // 6: -Z
+                {x: 0, y: 0, z: 0},                 // 1
+                {x: Math.PI/2, y: 0, z: 0},         // 2
+                {x: 0, y: -Math.PI/2, z: 0},        // 3
+                {x: 0, y: Math.PI/2, z: 0},         // 4
+                {x: -Math.PI/2, y: 0, z: 0},        // 5
+                {x: 0, y: Math.PI, z: 0}            // 6
             ];
 
             const selected = targets[dieResult-1];
-            
             diceTargetRotation = {
                 x: Math.round(threeCube.rotation.x / (Math.PI * 2)) * (Math.PI * 2) + selected.x,
                 y: Math.round(threeCube.rotation.y / (Math.PI * 2)) * (Math.PI * 2) + selected.y,
@@ -433,7 +466,6 @@
             rollingActive = false;
             await new Promise(res => setTimeout(res, 1200));
 
-            // Execute jumps based on the possibly swapped value
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
