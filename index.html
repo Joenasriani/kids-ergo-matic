@@ -279,7 +279,7 @@
 
     <script>
         const ERGO_BANK = [
-            { icon: '🤖', quest: 'Intro', q: 'What is Ergonomics?', a: ['The study of how we move and work safely', 'Learning how to build fast robots', 'A type of healthy vegetable'], c: 0 },
+            { icon: '🏠', quest: 'Intro', q: 'What is Ergonomics?', a: ['The study of how we move and work safely', 'Learning how to build fast robots', 'A type of healthy vegetable'], c: 0 },
             { icon: '💻', quest: 'Laptop', q: 'The screen is too low for your eyes. What do you do?', a: ['Use books to lift it', 'Bend your neck down', 'Lean your head forward'], c: 0 },
             { icon: '👀', quest: 'Eye Care', q: 'Your eyes feel tired from looking at the screen. What helps?', a: ['Stare harder', 'Look 20 feet away every 20 minutes', 'Close one eye while reading'], c: 1 },
             { icon: '🎒', quest: 'Backpack', q: 'Your bag is heavy and pulls you back!', a: ['Use one strap', 'Tighten both straps high', 'Carry in your hand'], c: 1 },
@@ -341,9 +341,9 @@
             };
 
             const faceMaterials = [
-                generateDieFace('3'), generateDieFace('4'), // +X, -X
-                generateDieFace('2'), generateDieFace('5'), // +Y, -Y
-                generateDieFace('1'), generateDieFace('6')  // +Z, -Z
+                generateDieFace('3'), generateDieFace('4'), 
+                generateDieFace('2'), generateDieFace('5'), 
+                generateDieFace('1'), generateDieFace('6')  
             ];
 
             threeCube = new THREE.Mesh(cubeGeometry, faceMaterials);
@@ -354,11 +354,13 @@
                 if (rollingActive) {
                     threeCube.rotation.x += diceRollVelocity.x; 
                     threeCube.rotation.y += diceRollVelocity.y;
+                    // Friction to ease out the roll
                     diceRollVelocity.x *= 0.985; diceRollVelocity.y *= 0.985;
                 } else {
-                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.15;
-                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.15;
-                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.15;
+                    // Smooth lerp to the final upright target
+                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.1;
+                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.1;
+                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.1;
                 }
                 threeRenderer.render(threeScene, threeCamera);
             };
@@ -385,7 +387,9 @@
                 square.className = 'tile';
                 if (idx === 0) square.style.backgroundColor = 'rgb(224, 242, 254)';
                 if (node.type === 'finish') square.classList.add('tile-finish-glow');
-                square.id = `square-${idx}`; square.innerHTML = node.icon; pathGrid.appendChild(square);
+                square.id = `square-${idx}`; 
+                square.innerHTML = (idx === 0) ? '🏠' : node.icon; 
+                pathGrid.appendChild(square);
             });
             setTimeout(positionRobot, 300);
         }
@@ -411,25 +415,28 @@
             if (isActionLocked || rollingActive) return;
             isActionLocked = true; rollingActive = true;
             oldPos = currentPos;
-            diceRollVelocity = { x: 0.6 + Math.random() * 0.4, y: 0.6 + Math.random() * 0.4 };
+            
+            // Initial velocity for the "Ease In" feel
+            diceRollVelocity = { x: 0.7 + Math.random() * 0.3, y: 0.7 + Math.random() * 0.3 };
             
             const moveSteps = Math.floor(Math.random() * 6) + 1;
             
-            await new Promise(res => setTimeout(res, 1600));
+            await new Promise(res => setTimeout(res, 1800));
             rollingActive = false;
             
-            // FINAL CORRECTED UPRIGHT MAPPING
+            // Target angles ensuring the die is ALWAYS straight
             const calibration = [
                 {x: 0, y: 0, z: 0},               // 1: (+Z)
                 {x: -Math.PI/2, y: 0, z: 0},      // 2: (+Y)
                 {x: 0, y: -Math.PI/2, z: 0},      // 3: (+X)
                 {x: 0, y: Math.PI/2, z: 0},       // 4: (-X)
-                {x: Math.PI/2, y: 0, z: Math.PI}, // 5: (-Y) Corrected with Z spin
+                {x: Math.PI/2, y: 0, z: Math.PI}, // 5: (-Y) Corrected with Z spin for uprightness
                 {x: 0, y: Math.PI, z: 0}          // 6: (-Z)
             ];
+            
             diceTargetRotation = calibration[moveSteps-1];
             
-            await new Promise(res => setTimeout(res, 1000));
+            await new Promise(res => setTimeout(res, 1200));
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; robot.classList.add('jump-animation'); positionRobot();
@@ -448,7 +455,7 @@
 
         function displayQuest(data) {
             document.getElementById('modal-content-area').innerHTML = `
-                <div class="text-[10vh] mb-[2vh]">${data.icon}</div>
+                <div class="text-[10vh] mb-[2vh]">${(currentPos === 0) ? '🏠' : data.icon}</div>
                 <div class="text-blue-500 font-bold uppercase tracking-widest text-[3.5vh] mb-[1vh]">${data.quest}</div>
                 <div class="text-[4.2vh] font-bold text-blue-600 mb-[5vh] leading-tight">${data.q}</div>
                 <div class="grid grid-cols-1 gap-[2.5vh]">
