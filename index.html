@@ -419,14 +419,13 @@
             rollingActive = false;
             
             const euler = new THREE.Euler();
-            // STRICT COORDINATES: Ensures faces 1-6 land perfectly straight for the camera
             const calibration = [
-                {x: 0, y: 0, z: 0},                   // 1: (+Z) Front
-                {x: -Math.PI / 2, y: 0, z: 0},        // 2: (+Y) Top
-                {x: 0, y: -Math.PI / 2, z: 0},        // 3: (+X) Right
-                {x: 0, y: Math.PI / 2, z: 0},         // 4: (-X) Left
-                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5: (-Y) Bottom (Corrected for rotation)
-                {x: 0, y: Math.PI, z: 0}              // 6: (-Z) Back (Corrected for rotation)
+                {x: 0, y: 0, z: 0},                   // 1: (+Z)
+                {x: -Math.PI / 2, y: 0, z: 0},        // 2: (+Y)
+                {x: 0, y: -Math.PI / 2, z: 0},        // 3: (+X)
+                {x: 0, y: Math.PI / 2, z: 0},         // 4: (-X)
+                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5: (-Y) 
+                {x: 0, y: Math.PI, z: 0}              // 6: (-Z)
             ];
             
             const target = calibration[moveSteps-1];
@@ -434,11 +433,15 @@
             diceTargetQuaternion.setFromEuler(euler);
             diceLerpFactor = 0; 
 
+            // Wait for landing
             await new Promise(res => setTimeout(res, 1000));
             
+            // STRICT MOVEMENT SYNC: Robot moves exactly 'moveSteps'
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
-                    currentPos++; robot.classList.add('jump-animation'); positionRobot();
+                    currentPos++; 
+                    robot.classList.add('jump-animation'); 
+                    positionRobot();
                     await new Promise(res => setTimeout(res, 600));
                     robot.classList.remove('jump-animation');
                 }
