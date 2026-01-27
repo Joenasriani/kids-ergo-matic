@@ -109,17 +109,6 @@
             z-index: 1;
         }
 
-        .tile-finish-glow::before {
-            content: '';
-            position: absolute;
-            top: -150%; left: -150%;
-            width: 400%; height: 400%;
-            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, white 355deg, white 360deg);
-            animation: rotateStrokeStreak 7s linear infinite;
-            z-index: -2;
-            opacity: 0;
-        }
-
         .tile-finish-glow::after {
             content: '';
             position: absolute;
@@ -216,17 +205,6 @@
             cursor: pointer;
         }
 
-        .action-button::before {
-            content: '';
-            position: absolute;
-            top: -150%; left: -150%;
-            width: 400%; height: 400%;
-            background: conic-gradient(from 0deg, transparent 0deg, transparent 345deg, white 355deg, white 360deg);
-            animation: rotateStrokeStreak 7s linear infinite;
-            z-index: -2;
-            opacity: 0;
-        }
-
         .action-button::after {
             content: '';
             position: absolute;
@@ -234,14 +212,6 @@
             background: rgb(59, 130, 246); 
             border-radius: inherit;
             z-index: -1;
-        }
-
-        @keyframes rotateStrokeStreak {
-            0% { transform: rotate(0deg); opacity: 0; }
-            5% { opacity: 1; }
-            23% { opacity: 1; }
-            28% { transform: rotate(360deg); opacity: 0; }
-            100% { transform: rotate(360deg); opacity: 0; }
         }
 
         .ui-icon {
@@ -327,9 +297,9 @@
 
     <script>
         const ERGO_BANK = [
-            { icon: '🏠', quest: 'Start', q: 'Ready to learn? Which posture is best while sitting?', a: ['Hunched forward', 'Sitting straight with back support', 'Slumping way down'], c: 1 },
-            { icon: '💻', quest: 'Laptop', q: 'The screen is too low for your eyes. What do you do?', a: ['Use books to lift it', 'Bend your neck down', 'Lean your head forward'], c: 0 },
-            { icon: '🍎', quest: 'Snack Break', q: 'Where is the healthiest place to eat your snack?', a: ['Away from your desk', 'While typing', 'On your lap'], c: 0 },
+            { icon: '🏠', quest: 'Welcome', q: 'What is Ergonomics?', a: ['The study of plant growth', 'Fitting the task to the person', 'Designing fast racing cars'], c: 1 },
+            { icon: '💻', quest: 'Monitor', q: 'Where should the top of your screen be?', a: ['At eye level', 'Below your chin', 'Touching the ceiling'], c: 0 },
+            { icon: '⌨️', quest: 'Keyboard', q: 'How should your wrists be while typing?', a: ['Bent upwards', 'Bent downwards', 'Neutral and straight'], c: 2 },
             { icon: '🎒', quest: 'Backpack', q: 'Your bag is heavy and pulls you back!', a: ['Use one strap', 'Tighten both straps high', 'Carry in your hand'], c: 1 },
             { icon: '📱', quest: 'Phone', q: 'Looking down at your phone hurts your neck.', a: ['Rest on belly', 'Hold phone at eye level', 'Keep looking down'], c: 1 },
             { icon: '🖱️', quest: 'Mouse', q: 'How should your hand rest on a computer mouse?', a: ['Squeeze it tight', 'Lightly and relaxed', 'Using only two fingers'], c: 1 },
@@ -337,7 +307,7 @@
             { icon: '🪑', quest: 'Feet', q: 'Your feet don\'t touch the floor. What is the fix?', a: ['Swing legs', 'Use a box rest', 'Sit on knees'], c: 1 },
             { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
             { icon: '🤳', quest: 'Tablet', q: 'Watching a movie on a flat table? Best way?', a: ['Hold it flat', 'Use a stand', 'Lie on side'], c: 1 },
-            { icon: '🧘', quest: 'Stretching', q: 'How often should you do a quick stretch break?', a: ['Every 20 minutes', 'Once a week', 'Only when it hurts'], c: 0 },
+            { icon: '⏰', quest: 'Breaks', q: 'How often should you stand up and move?', a: ['Every 30 minutes', 'Every 5 hours', 'Once a day'], c: 0 },
             { icon: '⌨️', quest: 'Wrists', q: 'Your hands bend up while typing. What should you do?', a: ['Keep wrists flat/straight', 'Rest on desk edge', 'Type with one finger'], c: 0 },
             { icon: '🚶', quest: 'Movement', q: 'What is the best thing after 30 minutes of sitting?', a: ['Sit longer', 'Stand and walk', 'Close eyes'], c: 1 },
             { icon: '🪟', quest: 'Air', q: 'Why is fresh air important for your workspace?', a: ['Helps focus', 'Cleans keyboard', 'Makes mouse faster'], c: 0 },
@@ -347,11 +317,10 @@
             { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
             { icon: '💪', quest: 'Shoulders', q: 'Your shoulders are up by your ears while typing.', a: ['Hold them tight', 'Relax them down', 'Shrug them more'], c: 1 },
             { icon: '📐', quest: 'Elbows', q: 'What angle should your elbows be while typing?', a: ['Straight out', '90 degrees (L shape)', 'Bent all the way'], c: 1 },
-            { icon: '🛋️', quest: 'Reading', q: 'Reading a book on the couch? How to sit?', a: ['Hunched over it', 'Pillow on lap to lift book', 'Lying on your belly'], c: 1 },
             { icon: '☀️', quest: 'Glare', q: 'The sun is reflecting off your screen!', a: ['Close the blinds', 'Squint your eyes', 'Sit closer'], c: 0 },
             { icon: '👟', quest: 'Walking', q: 'To walk with great posture, how should your body be aligned?', a: ['Leaning way back', 'Tall with eyes looking ahead', 'Hunched over your phone'], c: 1 },
             { icon: '📝', quest: 'Writing', q: 'Writing with a pen? Your hand feels cramped.', a: ['Grip tighter', 'Loosen your grip', 'Stop writing forever'], c: 1 },
-            { icon: '🌟', quest: 'Final', q: 'What is the most important part of ergonomics?', a: ['Buying a new chair', 'Moving and changing posture', 'Getting a bigger screen'], c: 1 }
+            { icon: '🌟', quest: 'Goal', q: 'What is the most important part of ergonomics?', a: ['Buying a new chair', 'Moving and changing posture', 'Getting a bigger screen'], c: 1 }
         ];
 
         let currentPos = 0, oldPos = 0, currentScore = 0, isActionLocked = false, userLives = 2;
@@ -384,14 +353,13 @@
                 ctx.fillStyle = 'rgb(59, 130, 246)'; ctx.font = 'bold 640px Fredoka, Arial';
                 ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(digit, 512, 512);
                 const texture = new THREE.CanvasTexture(canvas);
-                texture.anisotropy = threeRenderer.capabilities.getMaxAnisotropy();
                 return new THREE.MeshBasicMaterial({ map: texture });
             };
 
             const faceMaterials = [
-                generateDieFace('3'), generateDieFace('4'), // index 0, 1 (+X, -X)
-                generateDieFace('2'), generateDieFace('5'), // index 2, 3 (+Y, -Y)
-                generateDieFace('1'), generateDieFace('6')  // index 4, 5 (+Z, -Z)
+                generateDieFace('3'), generateDieFace('4'), // +X, -X
+                generateDieFace('2'), generateDieFace('5'), // +Y, -Y
+                generateDieFace('1'), generateDieFace('6')  // +Z, -Z
             ];
 
             threeCube = new THREE.Mesh(cubeGeometry, faceMaterials);
@@ -465,18 +433,18 @@
             await new Promise(res => setTimeout(res, 1600));
             rollingActive = false;
             
-            // STRICT UPRIGHT MAPPING RECALIBRATION
+            // STRICT STRAIGHT NUMBERS
             const calibration = [
-                {x: 0, y: 0, z: 0},               // 1: index 4 (+Z)
-                {x: -Math.PI/2, y: 0, z: 0},      // 2: index 2 (+Y)
-                {x: 0, y: -Math.PI/2, z: 0},      // 3: index 0 (+X)
-                {x: 0, y: Math.PI/2, z: 0},       // 4: index 1 (-X)
-                {x: Math.PI/2, y: 0, z: Math.PI}, // 5: index 3 (-Y) Locked Straight
-                {x: 0, y: Math.PI, z: 0}          // 6: index 5 (-Z)
+                {x: 0, y: 0, z: 0},               // 1
+                {x: -Math.PI/2, y: 0, z: 0},      // 2
+                {x: 0, y: -Math.PI/2, z: 0},      // 3
+                {x: 0, y: Math.PI/2, z: 0},       // 4
+                {x: Math.PI/2, y: 0, z: 0},       // 5
+                {x: 0, y: Math.PI, z: 0}          // 6
             ];
             diceTargetRotation = calibration[moveSteps-1];
             
-            await new Promise(res => setTimeout(res, 1000));
+            await new Promise(res => setTimeout(res, 800));
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; robot.classList.add('jump-animation'); positionRobot();
@@ -525,7 +493,6 @@
         function updateHearts() {
             const heartBar = document.getElementById('heart-display');
             heartBar.textContent = "❤️".repeat(userLives);
-            if (userLives === 0) heartBar.textContent = "🖤🖤";
         }
 
         function notifyFeedback(message) {
@@ -538,7 +505,6 @@
             document.getElementById('modal-content-area').innerHTML = `
                 <div class="text-[12vh] mb-[2vh]">🚨</div>
                 <div class="text-[9vh] font-bold text-red-600 mb-[2vh] uppercase">Game Over</div>
-                <div class="text-[4.5vh] text-gray-500 mb-[5vh] font-bold">You ran out of chances!</div>
                 <button onclick="location.reload()" class="bg-red-600 text-white py-[3vh] px-[8vh] rounded-[2.5vmin] font-medium text-[6vh] shadow-[0_1.5vmin_0_rgb(153,27,27)]">RESTART</button>
             `;
             modalLayer.classList.remove('hidden'); setTimeout(() => modalContainer.classList.add('active-modal'), 10);
