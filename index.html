@@ -328,9 +328,10 @@
                 return new THREE.MeshBasicMaterial({ map: texture });
             };
 
+            // Order of faces: +X, -X, +Y, -Y, +Z, -Z
             const faceMaterials = [
                 generateDieFace('3'), generateDieFace('4'), 
-                generateDieFace('2'), generateDieFace('5'), 
+                generateDieFace('5'), generateDieFace('2'), // Fixed mapping: +Y is 5, -Y is 2
                 generateDieFace('1'), generateDieFace('6')  
             ];
 
@@ -399,21 +400,18 @@
             isActionLocked = true; 
             oldPos = currentPos;
             
-            // 1. Determine the result BEFORE animating
             const moveSteps = Math.floor(Math.random() * 6) + 1;
-            
-            // 2. Start Rolling Animation
             rollingActive = true;
             await new Promise(res => setTimeout(res, 800));
 
-            // 3. Set EXACT Target Rotation (Straight and Synced)
+            // Rotations mapping to ensure faces are straight and match moveSteps
             const targets = [
-                {x: 0, y: 0, z: 0},                 // Face 1
-                {x: -Math.PI/2, y: 0, z: 0},       // Face 2
-                {x: 0, y: -Math.PI/2, z: 0},       // Face 3
-                {x: 0, y: Math.PI/2, z: 0},        // Face 4
-                {x: Math.PI/2, y: 0, z: 0},        // Face 5
-                {x: 0, y: Math.PI, z: 0}           // Face 6
+                {x: 0, y: 0, z: 0},                 // Face 1 (+Z)
+                {x: Math.PI/2, y: 0, z: 0},        // Face 2 (-Y) - Fixed to show "2"
+                {x: 0, y: -Math.PI/2, z: 0},       // Face 3 (+X)
+                {x: 0, y: Math.PI/2, z: 0},        // Face 4 (-X)
+                {x: -Math.PI/2, y: 0, z: 0},       // Face 5 (+Y) - Fixed to show "5"
+                {x: 0, y: Math.PI, z: 0}           // Face 6 (-Z)
             ];
 
             const selected = targets[moveSteps-1];
@@ -426,7 +424,6 @@
             rollingActive = false;
             await new Promise(res => setTimeout(res, 1000));
 
-            // 4. SYNCED JUMPS: Move exactly the number of steps shown on die
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
