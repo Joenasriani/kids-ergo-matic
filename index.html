@@ -1,188 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ERGO-MATIC</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap');
-        :root { --primary: rgb(59, 130, 246); --bg-blue: rgb(224, 242, 254); --outer-margin-bg: rgb(191, 219, 254); }
-        body { font-family: 'Fredoka', sans-serif; background: var(--outer-margin-bg); touch-action: manipulation; user-select: none; overflow: hidden; height: 100dvh; margin: 0; display: flex; justify-content: center; align-items: center; }
-        .app-shell { width: 96%; height: 96%; background: var(--bg-blue); border-radius: 4vmin; display: flex; flex-direction: column; overflow: hidden; position: relative; border: 0.8vmin solid white; }
-        header { height: 12vh; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 4vmin; border-bottom: 0.5vmin solid var(--outer-margin-bg); }
-        main.game-arena { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 2vmin; }
-        .board-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.5vmin; width: 100%; max-width: 100vmin; }
-        .tile { aspect-ratio: 1; border-radius: 3vmin; display: flex; align-items: center; justify-content: center; background: white; border: 0.6vmin solid rgb(186, 230, 253); font-size: 6vmin; position: relative; }
-        .tile-active { border-color: var(--primary); transform: scale(1.1); z-index: 10; box-shadow: 0 1vmin 0 rgb(37, 99, 235); }
-        .hero-bot { width: 8vh; height: 8vh; position: absolute; z-index: 100; font-size: 7vh; display: flex; align-items: center; justify-content: center; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; }
-        .jump-animation { animation: robot-hop 0.5s ease; }
-        @keyframes robot-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10vh) scale(1.2); } }
-        .control-panel { height: 22vh; background: white; border-top: 0.6vmin solid var(--outer-margin-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .canvas-dice-area { height: 75%; width: 100%; cursor: pointer; }
-        .quest-card-modal { background: white; border-radius: 5vmin; width: 90%; max-width: 80vmin; padding: 5vmin; text-align: center; transform: scale(0.8); opacity: 0; transition: 0.4s; }
-        .active-modal { transform: scale(1); opacity: 1; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>ERGO-MATIC</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;800&display=swap");
+
+body{
+margin:0;
+font-family:Fredoka,system-ui;
+background:linear-gradient(180deg,#dbeafe,#eff6ff,#ffffff);
+overflow:hidden;
+touch-action:manipulation;
+}
+
+.hidden{display:none}
+
+.tile{
+width:min(14vmin,120px);
+height:min(14vmin,120px);
+border-radius:22px;
+background:white;
+border:6px solid rgba(59,130,246,.25);
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:.5rem;
+font-weight:700;
+color:#1d4ed8;
+box-shadow:0 10px 22px rgba(0,0,0,.1);
+}
+
+.tile-active{
+border-color:#3b82f6;
+box-shadow:0 14px 30px rgba(59,130,246,.35);
+}
+
+.tile-finish{
+border-color:#fbbf24;
+background:#fffbeb;
+}
+
+.robot{
+position:absolute;
+font-size:min(15vmin,140px);
+pointer-events:none;
+transform:translate(-50%,-65%);
+transition:.4s ease;
+}
+
+.jump{animation:jump .5s ease}
+@keyframes jump{
+50%{transform:translate(-50%,-95%)}
+}
+
+.modal-bg{
+position:fixed;
+inset:0;
+background:rgba(15,23,42,.55);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9000;
+}
+
+.modal{
+background:white;
+border-radius:40px;
+border:10px solid #3b82f6;
+padding:3rem;
+max-width:900px;
+width:95%;
+text-align:center;
+box-shadow:0 30px 70px rgba(0,0,0,.3);
+}
+
+.action{
+background:#3b82f6;
+border:6px solid #1d4ed8;
+color:white;
+font-weight:800;
+padding:1rem 2.5rem;
+border-radius:30px;
+font-size:1.6rem;
+box-shadow:0 12px 0 #1d4ed8;
+}
+.action:active{transform:translateY(8px);box-shadow:none}
+</style>
 </head>
+
 <body>
-    <div class="app-shell">
-        <header>
-            <div class="flex gap-4">
-                <div class="bg-blue-50 px-4 py-2 rounded-xl border-2 border-blue-100 font-bold text-blue-600 text-2xl">💎 <span id="score-val">0</span></div>
-                <div class="bg-red-50 px-4 py-2 rounded-xl border-2 border-red-100 text-2xl" id="heart-display">❤️❤️</div>
-            </div>
-            <div class="text-3xl font-bold text-blue-500 uppercase">ERGO-MATIC</div>
-            <div onclick="location.reload()" class="cursor-pointer text-3xl">🏠</div>
-        </header>
 
-        <main class="game-arena" id="game-container">
-            <div id="grid-path" class="board-grid"></div>
-            <div id="robot-hero" class="hero-bot">🤖</div>
-        </main>
+<!-- INTRO -->
+<div id="intro" class="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-blue-100 to-white z-[9500]">
+<div class="bg-white border-[10px] border-blue-500 rounded-[40px] p-10 text-center shadow-2xl max-w-[900px] w-[95%]">
+<div class="text-[10vh]">🤖</div>
+<h1 class="text-[5vh] font-black text-blue-700">ERGO-MATIC</h1>
+<p class="text-[3vh] text-slate-700 mt-4">Roll the cube. Move the robot. Learn healthy posture.</p>
+<button class="action mt-8" onclick="startGame()">START</button>
+</div>
+</div>
 
-        <footer class="control-panel">
-            <div id="3d-dice-container" class="canvas-dice-area"></div>
-            <p class="font-bold text-blue-500 text-sm tracking-widest">TAP TO ROLL</p>
-        </footer>
+<!-- HUD -->
+<div class="fixed top-4 left-4 bg-white border-4 border-blue-500 rounded-full px-6 py-2 font-bold text-blue-700 z-50">
+⭐ <span id="score">0</span>
+</div>
 
-        <div id="modal-overlay" class="fixed inset-0 bg-black/80 hidden z-[6000] flex items-center justify-center">
-            <div id="quest-box" class="quest-card-modal">
-                <div id="modal-content-area"></div>
-            </div>
-        </div>
-    </div>
+<div class="fixed top-4 right-4 bg-white border-4 border-blue-500 rounded-full px-6 py-2 font-bold z-50">
+<span id="hearts">❤️❤️</span>
+</div>
 
-    <script>
-        const ERGO_BANK = [
-            { icon: '🏠', quest: 'START', q: 'What is Ergonomics?', a: ['Designing the workspace to fit the body', 'A way to build robots', 'Learning to type faster'], c: 0 },
-            { icon: '💻', quest: 'MONITOR', q: 'Where should the top of your screen be?', a: ['High above your head', 'At or slightly below eye level', 'Sitting on your lap'], c: 1 },
-            { icon: '⌨️', quest: 'KEYBOARD', q: 'What angle should your elbows be while typing?', a: ['Bent at 90 degrees (L shape)', 'Straight out', 'Hands high near face'], c: 0 },
-            { icon: '📱', quest: 'PHONE', q: 'How should you look at a phone to save your neck?', a: ['Hold it at eye level', 'Look down at your lap', 'Lay flat on the floor'], c: 0 },
-            { icon: '🪑', quest: 'FEET', q: 'What if your feet don\'t reach the floor?', a: ['Swing them', 'Use a box or footrest', 'Cross your legs'], c: 1 },
-            { icon: '📦', quest: 'LIFTING', q: 'How do you pick up a heavy box safely?', a: ['Bend your back', 'Keep legs straight', 'Bend your knees'], c: 2 },
-            { icon: '🏃', quest: 'EYES', q: 'What is the 20-20-20 rule?', a: ['Look 20ft away every 20m', 'Blink 20 times fast', 'Close eyes for 20m'], c: 0 },
-            { icon: '🚶', quest: 'BREAKS', q: 'How often should you stand and move?', a: ['Once a day', 'Every 20-30 minutes', 'Only when finished'], c: 1 }
-        ];
+<!-- BOARD -->
+<div class="h-screen flex flex-col items-center justify-center gap-6">
+<div id="board" class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(120px,1fr))] w-[90vw] max-w-[1100px]"></div>
 
-        let currentPos = 0, oldPos = 0, currentScore = 0, isActionLocked = false, userLives = 2, activeLevels = [];
-        const robot = document.getElementById('robot-hero'), pathGrid = document.getElementById('grid-path');
+<div class="flex items-center gap-6">
+<div id="dice" class="w-[180px] h-[180px] border-8 border-blue-500 rounded-[30px] bg-white"></div>
+<button class="action" onclick="roll()">ROLL</button>
+</div>
+</div>
 
-        let scene, camera, renderer, cube, rolling = false, targetRot = { x: 0, y: 0, z: 0 };
+<div id="robot" class="robot">🤖</div>
 
-        function init3D() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            const container = document.getElementById('3d-dice-container');
-            renderer.setSize(container.offsetWidth, container.offsetHeight);
-            container.appendChild(renderer.domElement);
+<!-- MODAL -->
+<div id="modalBG" class="modal-bg hidden">
+<div id="modal" class="modal"></div>
+</div>
 
-            const loader = new THREE.TextureLoader();
-            const createFace = (num) => {
-                const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 256;
-                const ctx = canvas.getContext('2d'); ctx.fillStyle = 'white'; ctx.fillRect(0,0,256,256);
-                ctx.fillStyle = 'rgb(59,130,246)'; ctx.font = 'bold 160px Fredoka'; ctx.textAlign='center'; ctx.textBaseline='middle';
-                ctx.fillText(num, 128, 128); return new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(canvas) });
-            };
-            const materials = [createFace('3'), createFace('4'), createFace('2'), createFace('5'), createFace('1'), createFace('6')];
-            cube = new THREE.Mesh(new THREE.BoxGeometry(3,3,3), materials);
-            scene.add(cube); camera.position.z = 8;
+<script>
+/* QUESTIONS – EDITED */
+const QUESTIONS=[
+{icon:"🏠",title:"Start",q:"What is Ergonomics?",a:["Using your body in a healthy way","Playing games all day","Never moving"],c:0},
+{icon:"💻",title:"Laptop",q:"Screen too low?",a:["Lift screen to eye level","Bend neck","Lean forward"],c:0},
+{icon:"🛋️",title:"Reading",q:"Best way to read?",a:["Book at eye level","Neck bent down","Lie flat"],c:0},
+{icon:"🍎",title:"Snack",q:"When should you eat?",a:["Away from screens","While gaming","Lying down"],c:0},
+{icon:"📱",title:"Phone",q:"Fix phone neck pain?",a:["Hold at eye level","Look down","Rest on belly"],c:0},
+{icon:"🪑",title:"Chair",q:"Chair too high?",a:["Feet hang","Feet flat","Hands strong"],c:0},
+{icon:"⌨️",title:"Typing",q:"Wrists position?",a:["Straight","Bent up","One finger"],c:0},
+{icon:"🚶",title:"Breaks",q:"After 30 min sitting?",a:["Stand and move","Sit more","Sleep"],c:0},
+{icon:"🏆",title:"Finish",type:"finish"}
+];
 
-            function animate() {
-                requestAnimationFrame(animate);
-                if (rolling) { cube.rotation.x += 0.4; cube.rotation.y += 0.5; }
-                else {
-                    cube.rotation.x += (targetRot.x - cube.rotation.x) * 0.1;
-                    cube.rotation.y += (targetRot.y - cube.rotation.y) * 0.1;
-                    cube.rotation.z += (targetRot.z - cube.rotation.z) * 0.1;
-                }
-                renderer.render(scene, camera);
-            }
-            animate();
-        }
+let pos=0,score=0,lives=2;
+const board=document.getElementById("board");
+const robot=document.getElementById("robot");
 
-        async function roll() {
-            if (isActionLocked || rolling) return;
-            isActionLocked = true; rolling = true;
-            const steps = Math.floor(Math.random() * 6) + 1;
-            
-            await new Promise(r => setTimeout(r, 1200));
-            rolling = false;
+QUESTIONS.forEach((q,i)=>{
+const t=document.createElement("div");
+t.className="tile"+(q.type==="finish"?" tile-finish":"");
+t.innerHTML=`<div style="font-size:2.5rem">${q.icon}</div><div>${q.title}</div>`;
+t.id="tile"+i;
+board.appendChild(t);
+});
 
-            // CRITICAL: STRAIGHT-TO-CAMERA CALIBRATION
-            const calibs = [
-                {x: 0, y: 0, z: 0},               // 1
-                {x: -Math.PI/2, y: 0, z: 0},      // 2
-                {x: 0, y: -Math.PI/2, z: 0},      // 3
-                {x: 0, y: Math.PI/2, z: 0},       // 4
-                {x: Math.PI/2, y: 0, z: Math.PI}, // 5
-                {x: 0, y: Math.PI, z: 0}          // 6
-            ];
-            targetRot = calibs[steps-1];
+function updateRobot(){
+document.querySelectorAll(".tile").forEach(t=>t.classList.remove("tile-active"));
+const tile=document.getElementById("tile"+pos);
+tile.classList.add("tile-active");
+const r=tile.getBoundingClientRect();
+robot.style.left=r.left+r.width/2+"px";
+robot.style.top=r.top+"px";
+}
 
-            await new Promise(r => setTimeout(r, 600));
-            for(let i=0; i<steps; i++) {
-                if(currentPos < activeLevels.length-1) {
-                    currentPos++; robot.classList.add('jump-animation'); moveBot();
-                    await new Promise(r => setTimeout(r, 600));
-                    robot.classList.remove('jump-animation');
-                }
-            }
-            showQuest();
-        }
+updateRobot();
 
-        function moveBot() {
-            const tile = document.getElementById(`sq-${currentPos}`);
-            const area = document.getElementById('game-container').getBoundingClientRect();
-            const rect = tile.getBoundingClientRect();
-            robot.style.left = (rect.left - area.left + rect.width/2 - robot.offsetWidth/2) + 'px';
-            robot.style.top = (rect.top - area.top + rect.height/2 - robot.offsetHeight/2) + 'px';
-            document.querySelectorAll('.tile').forEach(t => t.classList.remove('tile-active'));
-            tile.classList.add('tile-active');
-        }
+/* THREE DICE – LOCKED ROTATIONS */
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(45,1,.1,100);
+cam.position.z=6;
+const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
+renderer.setSize(180,180);
+document.getElementById("dice").appendChild(renderer.domElement);
 
-        function showQuest() {
-            const data = activeLevels[currentPos];
-            if (!data.q) return win();
-            document.getElementById('modal-content-area').innerHTML = `
-                <div class="text-6xl mb-4">${data.icon}</div>
-                <div class="text-xl font-bold text-blue-500 mb-2">${data.quest}</div>
-                <div class="text-2xl font-bold mb-6">${data.q}</div>
-                <div class="flex flex-col gap-3">
-                    ${data.a.map((opt, i) => `<button onclick="check(${i},${data.c})" class="bg-blue-500 text-white p-4 rounded-2xl font-bold text-xl">${opt}</button>`).join('')}
-                </div>`;
-            document.getElementById('modal-overlay').classList.remove('hidden');
-            setTimeout(() => document.getElementById('quest-box').classList.add('active-modal'), 10);
-        }
+function face(n){
+const c=document.createElement("canvas");
+c.width=512;c.height=512;
+const x=c.getContext("2d");
+x.fillStyle="white";x.fillRect(0,0,512,512);
+x.fillStyle="#3b82f6";
+x.font="bold 320px Fredoka";
+x.textAlign="center";
+x.textBaseline="middle";
+x.fillText(n,256,256);
+return new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)});
+}
 
-        window.check = (idx, correct) => {
-            document.getElementById('quest-box').classList.remove('active-modal');
-            setTimeout(() => {
-                document.getElementById('modal-overlay').classList.add('hidden');
-                if(idx === correct) { currentScore += 20; isActionLocked = false; }
-                else { 
-                    userLives--; 
-                    document.getElementById('heart-display').textContent = "❤️".repeat(userLives) || "🖤🖤";
-                    if(userLives <= 0) return alert('GAME OVER') || location.reload();
-                    currentPos = oldPos; moveBot(); isActionLocked = false;
-                }
-                document.getElementById('score-val').textContent = currentScore;
-                oldPos = currentPos;
-            }, 400);
-        };
+const cube=new THREE.Mesh(
+new THREE.BoxGeometry(2.8,2.8,2.8),
+[face(3),face(4),face(2),face(5),face(1),face(6)]
+);
+scene.add(cube);
 
-        function win() { alert('YOU ARE AN ERGO CHAMPION!'); location.reload(); }
+const ROT=[
+{x:0,y:0,z:0},
+{x:-Math.PI/2,y:0,z:0},
+{x:0,y:-Math.PI/2,z:0},
+{x:0,y:Math.PI/2,z:0},
+{x:Math.PI/2,y:0,z:0},
+{x:0,y:Math.PI,z:0}
+];
 
-        window.onload = () => {
-            init3D();
-            activeLevels = [...ERGO_BANK, { icon: '🏆', quest: 'FINISH', q: '', a: [], c: 0 }];
-            activeLevels.forEach((n, i) => {
-                const d = document.createElement('div'); d.className='tile'; d.id=`sq-${i}`; d.innerHTML=n.icon; pathGrid.appendChild(d);
-            });
-            setTimeout(moveBot, 200);
-            document.getElementById('3d-dice-container').addEventListener('click', roll);
-        };
-    </script>
+function animate(){
+requestAnimationFrame(animate);
+renderer.render(scene,cam);
+}
+animate();
+
+/* GAME */
+function startGame(){
+document.getElementById("intro").classList.add("hidden");
+showQuestion(0);
+}
+
+function roll(){
+const steps=Math.floor(Math.random()*6)+1;
+cube.rotation.x=ROT[steps-1].x;
+cube.rotation.y=ROT[steps-1].y;
+pos=Math.min(pos+steps,QUESTIONS.length-1);
+setTimeout(()=>{
+updateRobot();
+QUESTIONS[pos].type==="finish"?win():showQuestion(pos);
+},600);
+}
+
+function showQuestion(i){
+const q=QUESTIONS[i];
+let html=`<div class="text-[8vh]">${q.icon}</div>
+<h2 class="text-[4vh] text-blue-700 font-black">${q.q}</h2>`;
+if(q.a){
+q.a.forEach((a,idx)=>{
+html+=`<button class="action mt-4 w-full" onclick="answer(${idx},${q.c})">${a}</button>`;
+});
+}
+document.getElementById("modal").innerHTML=html;
+document.getElementById("modalBG").classList.remove("hidden");
+}
+
+function answer(p,c){
+document.getElementById("modalBG").classList.add("hidden");
+if(p===c){score+=20}else{lives--}
+document.getElementById("score").textContent=score;
+document.getElementById("hearts").textContent="❤️".repeat(lives);
+if(lives<=0)gameOver();
+}
+
+function win(){
+document.getElementById("modal").innerHTML=`<div class="text-[10vh]">🏆</div>
+<h2 class="text-[5vh] text-amber-500 font-black">YOU WIN!</h2>
+<button class="action mt-6" onclick="location.reload()">PLAY AGAIN</button>`;
+document.getElementById("modalBG").classList.remove("hidden");
+}
+
+function gameOver(){
+document.getElementById("modal").innerHTML=`<div class="text-[10vh]">💥</div>
+<h2 class="text-[5vh] text-red-500 font-black">GAME OVER</h2>
+<button class="action mt-6" onclick="location.reload()">RETRY</button>`;
+document.getElementById("modalBG").classList.remove("hidden");
+}
+</script>
 </body>
 </html>
