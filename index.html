@@ -289,7 +289,7 @@
             { icon: '🪑', quest: 'Feet', q: 'Your feet don\'t touch the floor. What is the fix?', a: ['Swing legs', 'Use a box rest', 'Sit on knees'], c: 1 },
             { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
             { icon: '🤳', quest: 'Tablet', q: 'Watching a movie on a flat table? Best way?', a: ['Hold it flat', 'Use a stand', 'Lie on side'], c: 1 },
-            { icon: '🧘', quest: 'Stretching', q: 'How often should you do a quick stretch break?', a: ['Every 20 minutes', 'Once a week', 'Only when it hurts'], c: 0 },
+            { icon: '🖐️', quest: 'Hands', q: 'How should your hands be while typing?', a: ['Floating and relaxed', 'Resting on the desk edge', 'Stretched as far as possible'], c: 0 },
             { icon: '⌨️', quest: 'Wrists', q: 'Your hands bend up while typing. What should you do?', a: ['Keep wrists flat/straight', 'Rest on desk edge', 'Type with one finger'], c: 0 },
             { icon: '🚶', quest: 'Movement', q: 'What is the best thing after 30 minutes of sitting?', a: ['Sit longer', 'Stand and walk', 'Close eyes'], c: 1 },
             { icon: '🪟', quest: 'Air', q: 'Why is fresh air important for your workspace?', a: ['Helps focus', 'Cleans keyboard', 'Makes mouse faster'], c: 0 },
@@ -354,10 +354,8 @@
                 if (rollingActive) {
                     threeCube.rotation.x += diceRollVelocity.x; 
                     threeCube.rotation.y += diceRollVelocity.y;
-                    // Friction to ease out the roll
                     diceRollVelocity.x *= 0.985; diceRollVelocity.y *= 0.985;
                 } else {
-                    // Smooth lerp to the final upright target
                     threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.1;
                     threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.1;
                     threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.1;
@@ -416,7 +414,6 @@
             isActionLocked = true; rollingActive = true;
             oldPos = currentPos;
             
-            // Initial velocity for the "Ease In" feel
             diceRollVelocity = { x: 0.7 + Math.random() * 0.3, y: 0.7 + Math.random() * 0.3 };
             
             const moveSteps = Math.floor(Math.random() * 6) + 1;
@@ -424,14 +421,13 @@
             await new Promise(res => setTimeout(res, 1800));
             rollingActive = false;
             
-            // Target angles ensuring the die is ALWAYS straight
             const calibration = [
-                {x: 0, y: 0, z: 0},               // 1: (+Z)
-                {x: -Math.PI/2, y: 0, z: 0},      // 2: (+Y)
-                {x: 0, y: -Math.PI/2, z: 0},      // 3: (+X)
-                {x: 0, y: Math.PI/2, z: 0},       // 4: (-X)
-                {x: Math.PI/2, y: 0, z: Math.PI}, // 5: (-Y) Corrected with Z spin for uprightness
-                {x: 0, y: Math.PI, z: 0}          // 6: (-Z)
+                {x: 0, y: 0, z: 0},               // 1
+                {x: -Math.PI/2, y: 0, z: 0},      // 2
+                {x: 0, y: -Math.PI/2, z: 0},      // 3
+                {x: 0, y: Math.PI/2, z: 0},       // 4
+                {x: Math.PI/2, y: 0, z: Math.PI}, // 5
+                {x: 0, y: Math.PI, z: 0}          // 6
             ];
             
             diceTargetRotation = calibration[moveSteps-1];
