@@ -1,268 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ERGO-MATIC</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;700&display=swap');
 
-body{
-margin:0;
-font-family:Fredoka,system-ui;
-background:linear-gradient(180deg,#dbeafe,#eff6ff,#ffffff);
-overflow:hidden;
-touch-action:manipulation;
+body {
+    font-family: 'Fredoka', sans-serif;
+    margin: 0;
+    overflow: hidden;
 }
-
-.hidden{display:none}
-
-.tile{
-width:min(14vmin,120px);
-height:min(14vmin,120px);
-border-radius:22px;
-background:white;
-border:6px solid rgba(59,130,246,.25);
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:.5rem;
-font-weight:700;
-color:#1d4ed8;
-box-shadow:0 10px 22px rgba(0,0,0,.1);
-}
-
-.tile-active{
-border-color:#3b82f6;
-box-shadow:0 14px 30px rgba(59,130,246,.35);
-}
-
-.tile-finish{
-border-color:#fbbf24;
-background:#fffbeb;
-}
-
-.robot{
-position:absolute;
-font-size:min(15vmin,140px);
-pointer-events:none;
-transform:translate(-50%,-65%);
-transition:.4s ease;
-}
-
-.jump{animation:jump .5s ease}
-@keyframes jump{
-50%{transform:translate(-50%,-95%)}
-}
-
-.modal-bg{
-position:fixed;
-inset:0;
-background:rgba(15,23,42,.55);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:9000;
-}
-
-.modal{
-background:white;
-border-radius:40px;
-border:10px solid #3b82f6;
-padding:3rem;
-max-width:900px;
-width:95%;
-text-align:center;
-box-shadow:0 30px 70px rgba(0,0,0,.3);
-}
-
-.action{
-background:#3b82f6;
-border:6px solid #1d4ed8;
-color:white;
-font-weight:800;
-padding:1rem 2.5rem;
-border-radius:30px;
-font-size:1.6rem;
-box-shadow:0 12px 0 #1d4ed8;
-}
-.action:active{transform:translateY(8px);box-shadow:none}
 </style>
 </head>
 
-<body>
+<body class="bg-sky-100">
 
-<!-- INTRO -->
-<div id="intro" class="fixed inset-0 flex items-center justify-center bg-gradient-to-b from-blue-100 to-white z-[9500]">
-<div class="bg-white border-[10px] border-blue-500 rounded-[40px] p-10 text-center shadow-2xl max-w-[900px] w-[95%]">
-<div class="text-[10vh]">🤖</div>
-<h1 class="text-[5vh] font-black text-blue-700">ERGO-MATIC</h1>
-<p class="text-[3vh] text-slate-700 mt-4">Roll the cube. Move the robot. Learn healthy posture.</p>
-<button class="action mt-8" onclick="startGame()">START</button>
-</div>
-</div>
+<header class="h-[15vh] bg-white flex items-center justify-between px-[5vmin] border-b-[0.5vmin] border-sky-200">
+    <h1 class="text-[4vh] font-bold text-blue-500">ERGO-MATIC</h1>
+    <div id="3d-dice-container" class="w-[12vh] h-[12vh] cursor-pointer"></div>
+</header>
 
-<!-- HUD -->
-<div class="fixed top-4 left-4 bg-white border-4 border-blue-500 rounded-full px-6 py-2 font-bold text-blue-700 z-50">
-⭐ <span id="score">0</span>
-</div>
+<main id="game-container" class="relative w-full h-[85vh] overflow-hidden"></main>
 
-<div class="fixed top-4 right-4 bg-white border-4 border-blue-500 rounded-full px-6 py-2 font-bold z-50">
-<span id="hearts">❤️❤️</span>
-</div>
-
-<!-- BOARD -->
-<div class="h-screen flex flex-col items-center justify-center gap-6">
-<div id="board" class="grid gap-4 grid-cols-[repeat(auto-fit,minmax(120px,1fr))] w-[90vw] max-w-[1100px]"></div>
-
-<div class="flex items-center gap-6">
-<div id="dice" class="w-[180px] h-[180px] border-8 border-blue-500 rounded-[30px] bg-white"></div>
-<button class="action" onclick="roll()">ROLL</button>
-</div>
-</div>
-
-<div id="robot" class="robot">🤖</div>
-
-<!-- MODAL -->
-<div id="modalBG" class="modal-bg hidden">
-<div id="modal" class="modal"></div>
+<div id="modal-overlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+    <div id="quest-box" class="bg-white rounded-xl p-[4vmin] max-w-[90vw] shadow-2xl"></div>
 </div>
 
 <script>
-/* QUESTIONS – EDITED */
-const QUESTIONS=[
-{icon:"🏠",title:"Start",q:"What is Ergonomics?",a:["Using your body in a healthy way","Playing games all day","Never moving"],c:0},
-{icon:"💻",title:"Laptop",q:"Screen too low?",a:["Lift screen to eye level","Bend neck","Lean forward"],c:0},
-{icon:"🛋️",title:"Reading",q:"Best way to read?",a:["Book at eye level","Neck bent down","Lie flat"],c:0},
-{icon:"🍎",title:"Snack",q:"When should you eat?",a:["Away from screens","While gaming","Lying down"],c:0},
-{icon:"📱",title:"Phone",q:"Fix phone neck pain?",a:["Hold at eye level","Look down","Rest on belly"],c:0},
-{icon:"🪑",title:"Chair",q:"Chair too high?",a:["Feet hang","Feet flat","Hands strong"],c:0},
-{icon:"⌨️",title:"Typing",q:"Wrists position?",a:["Straight","Bent up","One finger"],c:0},
-{icon:"🚶",title:"Breaks",q:"After 30 min sitting?",a:["Stand and move","Sit more","Sleep"],c:0},
-{icon:"🏆",title:"Finish",type:"finish"}
+/* =======================
+   QUESTION BANK (EDITED)
+   ======================= */
+
+const ERGO_BANK = [
+
+/* START — HOUSE ICON */
+{
+    icon: '🏠',
+    quest: 'Start',
+    q: 'What is Ergonomics?',
+    a: [
+        'Setting up your body and tools to stay comfortable and safe',
+        'Playing games all day',
+        'Ignoring posture'
+    ],
+    c: 0
+},
+
+{
+    icon: '💻',
+    quest: 'Laptop',
+    q: 'Where should your laptop screen be?',
+    a: [
+        'At eye level',
+        'On your lap',
+        'Very low on the desk'
+    ],
+    c: 0
+},
+
+/* REPLACED SNACK QUESTION */
+{
+    icon: '🍎',
+    quest: 'Break Time',
+    q: 'Where should you eat your snack to protect your body?',
+    a: [
+        'At a table away from screens',
+        'While gaming',
+        'Lying down'
+    ],
+    c: 0
+},
+
+{
+    icon: '🎒',
+    quest: 'Backpack',
+    q: 'How should you wear a backpack?',
+    a: [
+        'With both straps snug',
+        'On one shoulder',
+        'Very loose'
+    ],
+    c: 0
+},
+
+{
+    icon: '📱',
+    quest: 'Phone',
+    q: 'How should you hold your phone?',
+    a: [
+        'At eye level',
+        'Near your knees',
+        'On your stomach'
+    ],
+    c: 0
+},
+
+{
+    icon: '🖱️',
+    quest: 'Mouse',
+    q: 'How should your hand rest on the mouse?',
+    a: [
+        'Relaxed and straight',
+        'Bent sharply',
+        'Only using two fingers'
+    ],
+    c: 0
+},
+
+{
+    icon: '🪑',
+    quest: 'Feet',
+    q: 'Your feet don’t touch the floor. What should you do?',
+    a: [
+        'Use a footrest or box',
+        'Swing your legs',
+        'Sit on your knees'
+    ],
+    c: 0
+},
+
+{
+    icon: '📦',
+    quest: 'Lifting',
+    q: 'How do you lift something heavy?',
+    a: [
+        'Bend your knees',
+        'Bend your back',
+        'Keep legs straight'
+    ],
+    c: 0
+},
+
+/* REPLACED READING QUESTION */
+{
+    icon: '📖',
+    quest: 'Posture',
+    q: 'When reading or studying, how should you sit?',
+    a: [
+        'Upright with back supported',
+        'Slouched on the couch',
+        'Lying on your stomach'
+    ],
+    c: 0
+},
+
+{
+    icon: '👀',
+    quest: 'Eyes',
+    q: 'What helps protect your eyes?',
+    a: [
+        'Taking screen breaks',
+        'Never blinking',
+        'Sitting very close'
+    ],
+    c: 0
+},
+
+/* END — NOT START */
+{
+    icon: '🌟',
+    quest: 'Finish',
+    q: 'What is the most important ergonomics habit?',
+    a: [
+        'Move and change posture often',
+        'Get a bigger screen',
+        'Sit still longer'
+    ],
+    c: 0
+}
 ];
 
-let pos=0,score=0,lives=2;
-const board=document.getElementById("board");
-const robot=document.getElementById("robot");
+/* =======================
+   GAME STATE
+   ======================= */
 
-QUESTIONS.forEach((q,i)=>{
-const t=document.createElement("div");
-t.className="tile"+(q.type==="finish"?" tile-finish":"");
-t.innerHTML=`<div style="font-size:2.5rem">${q.icon}</div><div>${q.title}</div>`;
-t.id="tile"+i;
-board.appendChild(t);
-});
+let currentPos = 0;
+let rolling = false;
+let activeLevels = ERGO_BANK;
 
-function updateRobot(){
-document.querySelectorAll(".tile").forEach(t=>t.classList.remove("tile-active"));
-const tile=document.getElementById("tile"+pos);
-tile.classList.add("tile-active");
-const r=tile.getBoundingClientRect();
-robot.style.left=r.left+r.width/2+"px";
-robot.style.top=r.top+"px";
+/* =======================
+   THREE.JS DICE (LOCKED)
+   ======================= */
+
+let scene, camera, renderer, cube;
+
+function startDice() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.z = 6;
+
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(120, 120);
+    document.getElementById('3d-dice-container').appendChild(renderer.domElement);
+
+    const geo = new THREE.BoxGeometry(2.5,2.5,2.5);
+
+    const face = n => {
+        const c = document.createElement('canvas');
+        c.width = c.height = 512;
+        const x = c.getContext('2d');
+        x.fillStyle = '#fff';
+        x.fillRect(0,0,512,512);
+        x.fillStyle = '#000';
+        x.font = 'bold 260px Fredoka';
+        x.textAlign = 'center';
+        x.textBaseline = 'middle';
+        x.fillText(n,256,280);
+        return new THREE.CanvasTexture(c);
+    };
+
+    const mats = [1,2,3,4,5,6].map(n => new THREE.MeshBasicMaterial({ map: face(n) }));
+    cube = new THREE.Mesh(geo, mats);
+    scene.add(cube);
+
+    animate();
 }
 
-updateRobot();
-
-/* THREE DICE – LOCKED ROTATIONS */
-const scene=new THREE.Scene();
-const cam=new THREE.PerspectiveCamera(45,1,.1,100);
-cam.position.z=6;
-const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
-renderer.setSize(180,180);
-document.getElementById("dice").appendChild(renderer.domElement);
-
-function face(n){
-const c=document.createElement("canvas");
-c.width=512;c.height=512;
-const x=c.getContext("2d");
-x.fillStyle="white";x.fillRect(0,0,512,512);
-x.fillStyle="#3b82f6";
-x.font="bold 320px Fredoka";
-x.textAlign="center";
-x.textBaseline="middle";
-x.fillText(n,256,256);
-return new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)});
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
 }
 
-const cube=new THREE.Mesh(
-new THREE.BoxGeometry(2.8,2.8,2.8),
-[face(3),face(4),face(2),face(5),face(1),face(6)]
-);
-scene.add(cube);
+/* =======================
+   CRUCIAL DICE RULE
+   ======================= */
 
-const ROT=[
-{x:0,y:0,z:0},
-{x:-Math.PI/2,y:0,z:0},
-{x:0,y:-Math.PI/2,z:0},
-{x:0,y:Math.PI/2,z:0},
-{x:Math.PI/2,y:0,z:0},
-{x:0,y:Math.PI,z:0}
-];
+function rollDice() {
+    if (rolling) return;
+    rolling = true;
 
-function animate(){
-requestAnimationFrame(animate);
-renderer.render(scene,cam);
-}
-animate();
+    const steps = 3; // LOCKED & SYNCED
+    currentPos = (currentPos + steps) % activeLevels.length;
 
-/* GAME */
-function startGame(){
-document.getElementById("intro").classList.add("hidden");
-showQuestion(0);
+    cube.rotation.set(0,0,0); // ALWAYS UPRIGHT
+
+    setTimeout(() => {
+        showQuestion(activeLevels[currentPos]);
+        rolling = false;
+    }, 400);
 }
 
-function roll(){
-const steps=Math.floor(Math.random()*6)+1;
-cube.rotation.x=ROT[steps-1].x;
-cube.rotation.y=ROT[steps-1].y;
-pos=Math.min(pos+steps,QUESTIONS.length-1);
-setTimeout(()=>{
-updateRobot();
-QUESTIONS[pos].type==="finish"?win():showQuestion(pos);
-},600);
+document.getElementById('3d-dice-container').addEventListener('click', rollDice);
+
+/* =======================
+   QUESTIONS
+   ======================= */
+
+function showQuestion(data) {
+    const box = document.getElementById('quest-box');
+    const overlay = document.getElementById('modal-overlay');
+
+    box.innerHTML = `
+        <div class="text-center">
+            <div class="text-[6vh]">${data.icon}</div>
+            <h2 class="text-[3vh] font-bold mt-2">${data.quest}</h2>
+            <p class="mt-4 text-[2.2vh]">${data.q}</p>
+            <div class="mt-4 space-y-2">
+                ${data.a.map((ans,i)=>`
+                    <button class="w-full bg-sky-200 rounded-lg p-2" onclick="closeModal()">${ans}</button>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    overlay.classList.remove('hidden');
 }
 
-function showQuestion(i){
-const q=QUESTIONS[i];
-let html=`<div class="text-[8vh]">${q.icon}</div>
-<h2 class="text-[4vh] text-blue-700 font-black">${q.q}</h2>`;
-if(q.a){
-q.a.forEach((a,idx)=>{
-html+=`<button class="action mt-4 w-full" onclick="answer(${idx},${q.c})">${a}</button>`;
-});
-}
-document.getElementById("modal").innerHTML=html;
-document.getElementById("modalBG").classList.remove("hidden");
+function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
 }
 
-function answer(p,c){
-document.getElementById("modalBG").classList.add("hidden");
-if(p===c){score+=20}else{lives--}
-document.getElementById("score").textContent=score;
-document.getElementById("hearts").textContent="❤️".repeat(lives);
-if(lives<=0)gameOver();
-}
+/* ======================= */
 
-function win(){
-document.getElementById("modal").innerHTML=`<div class="text-[10vh]">🏆</div>
-<h2 class="text-[5vh] text-amber-500 font-black">YOU WIN!</h2>
-<button class="action mt-6" onclick="location.reload()">PLAY AGAIN</button>`;
-document.getElementById("modalBG").classList.remove("hidden");
-}
-
-function gameOver(){
-document.getElementById("modal").innerHTML=`<div class="text-[10vh]">💥</div>
-<h2 class="text-[5vh] text-red-500 font-black">GAME OVER</h2>
-<button class="action mt-6" onclick="location.reload()">RETRY</button>`;
-document.getElementById("modalBG").classList.remove("hidden");
-}
+startDice();
 </script>
+
 </body>
 </html>
