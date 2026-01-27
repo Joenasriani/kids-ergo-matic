@@ -312,7 +312,8 @@
         const gameMain = document.getElementById('game-container'), pathGrid = document.getElementById('grid-path'), robot = document.getElementById('robot-hero'), modalLayer = document.getElementById('modal-overlay');
         const modalContainer = document.getElementById('quest-box'), diceSlot = document.getElementById('3d-dice-container');
 
-        let threeScene, threeCamera, threeRenderer, threeCube, rollingActive = false, diceTargetRotation = { x: 0, y: 0, z: 0 }, diceRollVelocity = { x: 0, y: 0 };
+        let threeScene, threeCamera, threeRenderer, threeCube;
+        let rollingActive = false, diceTargetQuaternion = new THREE.Quaternion(), diceLerpFactor = 0;
         let inactivityTimeout;
         const TIME_LIMIT = 180000; 
 
@@ -352,13 +353,13 @@
             const renderLoop = () => {
                 requestAnimationFrame(renderLoop);
                 if (rollingActive) {
-                    threeCube.rotation.x += diceRollVelocity.x; 
-                    threeCube.rotation.y += diceRollVelocity.y;
-                    diceRollVelocity.x *= 0.985; diceRollVelocity.y *= 0.985;
-                } else {
-                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.1;
-                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.1;
-                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.1;
+                    // Fast random rotation during "wild" roll phase
+                    threeCube.rotation.x += 0.35;
+                    threeCube.rotation.y += 0.42;
+                } else if (diceLerpFactor < 1) {
+                    // Smooth Slerp to target without reversing
+                    diceLerpFactor += 0.04; 
+                    threeCube.quaternion.slerp(diceTargetQuaternion, Math.min(diceLerpFactor, 1));
                 }
                 threeRenderer.render(threeScene, threeCamera);
             };
@@ -414,13 +415,14 @@
             isActionLocked = true; rollingActive = true;
             oldPos = currentPos;
             
-            diceRollVelocity = { x: 0.7 + Math.random() * 0.3, y: 0.7 + Math.random() * 0.3 };
-            
             const moveSteps = Math.floor(Math.random() * 6) + 1;
             
-            await new Promise(res => setTimeout(res, 1800));
+            // Phase 1: High speed rolling
+            await new Promise(res => setTimeout(res, 1200));
             rollingActive = false;
             
+            // Phase 2: Calculate target and Slerp smoothly
+            const euler = new THREE.Euler();
             const calibration = [
                 {x: 0, y: 0, z: 0},               // 1
                 {x: -Math.PI/2, y: 0, z: 0},      // 2
@@ -430,9 +432,14 @@
                 {x: 0, y: Math.PI, z: 0}          // 6
             ];
             
-            diceTargetRotation = calibration[moveSteps-1];
+            const target = calibration[moveSteps-1];
+            euler.set(target.x, target.y, target.z);
+            diceTargetQuaternion.setFromEuler(euler);
+            diceLerpFactor = 0; // Trigger the Slerp in renderLoop
+
+            // Wait for smooth landing animation
+            await new Promise(res => setTimeout(res, 1000));
             
-            await new Promise(res => setTimeout(res, 1200));
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; robot.classList.add('jump-animation'); positionRobot();
