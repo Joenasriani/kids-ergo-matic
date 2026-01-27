@@ -420,12 +420,12 @@
             
             const euler = new THREE.Euler();
             const calibration = [
-                {x: 0, y: 0, z: 0},                   // 1: (+Z)
-                {x: -Math.PI / 2, y: 0, z: 0},        // 2: (+Y)
-                {x: 0, y: -Math.PI / 2, z: 0},        // 3: (+X)
-                {x: 0, y: Math.PI / 2, z: 0},         // 4: (-X)
-                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5: (-Y) 
-                {x: 0, y: Math.PI, z: 0}              // 6: (-Z)
+                {x: 0, y: 0, z: 0},                   // 1
+                {x: -Math.PI / 2, y: 0, z: 0},        // 2
+                {x: 0, y: -Math.PI / 2, z: 0},        // 3
+                {x: 0, y: Math.PI / 2, z: 0},         // 4
+                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5
+                {x: 0, y: Math.PI, z: 0}              // 6
             ];
             
             const target = calibration[moveSteps-1];
@@ -433,10 +433,9 @@
             diceTargetQuaternion.setFromEuler(euler);
             diceLerpFactor = 0; 
 
-            // Wait for landing
             await new Promise(res => setTimeout(res, 1000));
             
-            // STRICT MOVEMENT SYNC: Robot moves exactly 'moveSteps'
+            // THE FIX: Loop runs exactly 'moveSteps' times
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
