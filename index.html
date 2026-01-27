@@ -286,8 +286,8 @@
             { icon: '💧', quest: 'Hydration', q: 'Why is drinking water good for ergonomics?', a: ['It makes you move', 'It makes you faster', 'It cleans the screen'], c: 0 },
             { icon: '🪑', quest: 'Feet', q: 'Your feet don\'t touch the floor. What is the fix?', a: ['Swing legs', 'Use a box rest', 'Sit on knees'], c: 1 },
             { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
-            { icon: '🛋️', quest: 'Posturing', q: 'What is the best way to sit at a desk?', a: ['Slouching forward', 'Back supported and upright', 'Feet dangling'], c: 1 },
-            { icon: '🍕', quest: 'Snack Break', q: 'What is the healthiest way to eat at your desk?', a: ['Eat while typing', 'Step away to a table', 'Eat while slouching'], c: 1 },
+            { icon: '🛋️', quest: 'Posture', q: 'What is the best way to sit at a desk?', a: ['Slouching forward', 'Back supported and upright', 'Feet dangling'], c: 1 },
+            { icon: '🍎', quest: 'Snack Break', q: 'Which is the best place to eat your snack?', a: ['While leaning on desk', 'Sitting upright at a table', 'Lying on the floor'], c: 1 },
             { icon: '⏰', quest: 'Breaks', q: 'How often should you stand up and move?', a: ['Every 30 minutes', 'Every 5 hours', 'Once a day'], c: 0 },
             { icon: '🏃', quest: 'Eye Care', q: 'What is the 20-20-20 rule for your eyes?', a: ['Stare for 20 mins', 'Look far away every 20m', 'Blink 20 times'], c: 1 },
             { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
@@ -340,8 +340,8 @@
             const renderLoop = () => {
                 requestAnimationFrame(renderLoop);
                 if (rollingActive) {
-                    threeCube.rotation.x += 0.35;
-                    threeCube.rotation.y += 0.25;
+                    threeCube.rotation.x += 0.4;
+                    threeCube.rotation.y += 0.3;
                 } else {
                     threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.15;
                     threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.15;
@@ -369,14 +369,10 @@
             activeLevels.forEach((node, idx) => {
                 const square = document.createElement('div');
                 square.className = 'tile';
-                if (idx === 0) {
-                    square.style.backgroundColor = 'rgb(224, 242, 254)';
-                    square.innerHTML = '🏠'; 
-                } else {
-                    square.innerHTML = node.icon;
-                }
+                square.id = `square-${idx}`;
+                square.innerHTML = idx === 0 ? '🏠' : node.icon;
                 if (node.type === 'finish') square.classList.add('tile-finish-glow');
-                square.id = `square-${idx}`; pathGrid.appendChild(square);
+                pathGrid.appendChild(square);
             });
             setTimeout(positionRobot, 300);
         }
@@ -400,23 +396,27 @@
 
         async function rollAction() {
             if (isActionLocked) return;
-            isActionLocked = true; rollingActive = true;
+            isActionLocked = true; 
             oldPos = currentPos;
             
+            // 1. Determine the result BEFORE animating
             const moveSteps = Math.floor(Math.random() * 6) + 1;
+            
+            // 2. Start Rolling Animation
+            rollingActive = true;
             await new Promise(res => setTimeout(res, 800));
 
+            // 3. Set EXACT Target Rotation (Straight and Synced)
             const targets = [
-                {x: 0, y: 0, z: 0},                 
-                {x: -Math.PI/2, y: 0, z: 0},       
-                {x: 0, y: -Math.PI/2, z: 0},       
-                {x: 0, y: Math.PI/2, z: 0},        
-                {x: Math.PI/2, y: 0, z: 0},        
-                {x: 0, y: Math.PI, z: 0}           
+                {x: 0, y: 0, z: 0},                 // Face 1
+                {x: -Math.PI/2, y: 0, z: 0},       // Face 2
+                {x: 0, y: -Math.PI/2, z: 0},       // Face 3
+                {x: 0, y: Math.PI/2, z: 0},        // Face 4
+                {x: Math.PI/2, y: 0, z: 0},        // Face 5
+                {x: 0, y: Math.PI, z: 0}           // Face 6
             ];
 
             const selected = targets[moveSteps-1];
-            
             diceTargetRotation = {
                 x: Math.round(threeCube.rotation.x / (Math.PI * 2)) * (Math.PI * 2) + selected.x,
                 y: Math.round(threeCube.rotation.y / (Math.PI * 2)) * (Math.PI * 2) + selected.y,
@@ -426,6 +426,7 @@
             rollingActive = false;
             await new Promise(res => setTimeout(res, 1000));
 
+            // 4. SYNCED JUMPS: Move exactly the number of steps shown on die
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
