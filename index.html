@@ -353,12 +353,10 @@
             const renderLoop = () => {
                 requestAnimationFrame(renderLoop);
                 if (rollingActive) {
-                    // Fast random rotation during "wild" roll phase
                     threeCube.rotation.x += 0.35;
                     threeCube.rotation.y += 0.42;
                 } else if (diceLerpFactor < 1) {
-                    // Smooth Slerp to target without reversing
-                    diceLerpFactor += 0.04; 
+                    diceLerpFactor += 0.045; 
                     threeCube.quaternion.slerp(diceTargetQuaternion, Math.min(diceLerpFactor, 1));
                 }
                 threeRenderer.render(threeScene, threeCamera);
@@ -417,27 +415,25 @@
             
             const moveSteps = Math.floor(Math.random() * 6) + 1;
             
-            // Phase 1: High speed rolling
             await new Promise(res => setTimeout(res, 1200));
             rollingActive = false;
             
-            // Phase 2: Calculate target and Slerp smoothly
             const euler = new THREE.Euler();
+            // STRICT COORDINATES: Ensures faces 1-6 land perfectly straight for the camera
             const calibration = [
-                {x: 0, y: 0, z: 0},               // 1
-                {x: -Math.PI/2, y: 0, z: 0},      // 2
-                {x: 0, y: -Math.PI/2, z: 0},      // 3
-                {x: 0, y: Math.PI/2, z: 0},       // 4
-                {x: Math.PI/2, y: 0, z: Math.PI}, // 5
-                {x: 0, y: Math.PI, z: 0}          // 6
+                {x: 0, y: 0, z: 0},                   // 1: (+Z) Front
+                {x: -Math.PI / 2, y: 0, z: 0},        // 2: (+Y) Top
+                {x: 0, y: -Math.PI / 2, z: 0},        // 3: (+X) Right
+                {x: 0, y: Math.PI / 2, z: 0},         // 4: (-X) Left
+                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5: (-Y) Bottom (Corrected for rotation)
+                {x: 0, y: Math.PI, z: 0}              // 6: (-Z) Back (Corrected for rotation)
             ];
             
             const target = calibration[moveSteps-1];
             euler.set(target.x, target.y, target.z);
             diceTargetQuaternion.setFromEuler(euler);
-            diceLerpFactor = 0; // Trigger the Slerp in renderLoop
+            diceLerpFactor = 0; 
 
-            // Wait for smooth landing animation
             await new Promise(res => setTimeout(res, 1000));
             
             for (let s = 0; s < moveSteps; s++) {
