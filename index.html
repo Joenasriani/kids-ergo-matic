@@ -120,7 +120,7 @@
         .jump-animation { animation: robot-hop 0.5s ease; }
         @keyframes robot-hop {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12vh) scale(1.3); }
+            50% { transform: translateY(-12vh) scale(1.4); }
         }
 
         .control-panel {
@@ -206,15 +206,18 @@
 
     <script>
         const ERGO_BANK = [
-            { icon: '🏠', quest: 'Welcome', q: 'What is Ergonomics?', a: ['Plant growth', 'Fitting task to person', 'Racing cars'], c: 1 },
-            { icon: '💻', quest: 'Monitor', q: 'Where should the screen top be?', a: ['Eye level', 'Below chin', 'Ceiling'], c: 0 },
-            { icon: '⌨️', quest: 'Keyboard', q: 'Wrist position while typing?', a: ['Bent up', 'Bent down', 'Straight'], c: 2 },
-            { icon: '📏', quest: 'Distance', q: 'How far should your monitor be?', a: ['Arm length', 'Very close', 'Across room'], c: 0 },
-            { icon: '📐', quest: 'Elbows', q: 'Angle for elbows while typing?', a: ['Straight', '90 degrees (L)', 'Bent back'], c: 1 },
-            { icon: '🎒', quest: 'Backpack', q: 'Is your bag heavy?', a: ['One strap', 'Two straps high', 'Carry in hand'], c: 1 }
+            { icon: '🏠', quest: 'Basics', q: 'What is Ergonomics?', a: ['The study of plants', 'Fitting the task to the person', 'Designing fast cars'], c: 1 },
+            { icon: '💻', quest: 'Monitor', q: 'Where should the top of your screen be?', a: ['At eye level', 'Below your chin', 'Touching the ceiling'], c: 0 },
+            { icon: '⌨️', quest: 'Keyboard', q: 'How should your wrists be while typing?', a: ['Bent upwards', 'Bent downwards', 'Neutral and straight'], c: 2 },
+            { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
+            { icon: '📐', quest: 'Elbows', q: 'What angle should your elbows be while typing?', a: ['Straight out', '90 degrees (L shape)', 'Bent all the way'], c: 1 },
+            { icon: '🎒', quest: 'Backpack', q: 'How should you carry a heavy backpack?', a: ['On one shoulder', 'Using both straps high', 'In your hands'], c: 1 },
+            { icon: '📱', quest: 'Phone', q: 'What is the best way to look at your phone?', a: ['Resting on your lap', 'Held at eye level', 'Bending your neck down'], c: 1 },
+            { icon: '🪑', quest: 'Posture', q: 'What is the best way to sit at a desk?', a: ['Slouched over', 'Back supported & feet flat', 'Crossing your legs'], c: 1 }
         ];
 
         let currentPos = 0, oldPos = 0, currentScore = 0, isLocked = false, userLives = 2;
+        let activeLevels = [];
         let threeScene, threeCamera, threeRenderer, threeCube, rolling = false, targetRot = { x: 0, y: 0, z: 0 };
 
         function start3DEngine() {
@@ -256,12 +259,18 @@
 
         function buildBoard() {
             const grid = document.getElementById('grid-path');
-            for(let i=0; i<18; i++) {
+            activeLevels = [ERGO_BANK[0]]; // Start with house
+            const pool = ERGO_BANK.slice(1).sort(() => Math.random() - 0.5);
+            activeLevels = activeLevels.concat(pool.slice(0, 16));
+            activeLevels.push({ type: 'finish', icon: '🏆', quest: 'Goal', q: '', a: [], c: 0 });
+
+            grid.innerHTML = '';
+            activeLevels.forEach((node, idx) => {
                 const tile = document.createElement('div');
-                tile.className = 'tile'; tile.id = `square-${i}`;
-                tile.innerHTML = i === 0 ? '🏠' : (i === 17 ? '🏆' : '❓');
+                tile.className = 'tile'; tile.id = `square-${idx}`;
+                tile.innerHTML = node.icon;
                 grid.appendChild(tile);
-            }
+            });
             setTimeout(updateRobot, 300);
         }
 
@@ -296,11 +305,11 @@
             targetRot = { x: curX + rots[roll-1].x, y: curY + rots[roll-1].y, z: rots[roll-1].z };
             rolling = false;
 
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 1200));
             
-            // SUPER SYNC: Move actor exactly 'roll' times
+            // SUPER SYNCED MOVEMENT
             for(let i=0; i<roll; i++) {
-                if(currentPos < 17) {
+                if(currentPos < activeLevels.length - 1) {
                     currentPos++;
                     const bot = document.getElementById('robot-hero');
                     bot.classList.add('jump-animation');
@@ -309,17 +318,17 @@
                     bot.classList.remove('jump-animation');
                 }
             }
-            resolveMove();
+            resolveLanding();
         }
 
-        function resolveMove() {
-            if (currentPos >= 17) { renderWin(); return; }
-            const q = ERGO_BANK[currentPos % ERGO_BANK.length];
+        function resolveLanding() {
+            const node = activeLevels[currentPos];
+            if (node.type === 'finish') { renderWin(); return; }
             document.getElementById('modal-content-area').innerHTML = `
-                <div class="text-[8vh] mb-4">${q.icon}</div>
-                <h2 class="text-[4vh] font-bold text-blue-600 mb-8">${q.q}</h2>
+                <div class="text-[8vh] mb-4">${node.icon}</div>
+                <h2 class="text-[4vh] font-bold text-blue-600 mb-8">${node.q}</h2>
                 <div class="flex flex-col gap-4">
-                    ${q.a.map((opt, i) => `<button onclick="handleAns(${i}, ${q.c})" class="bg-blue-500 text-white py-4 rounded-2xl text-[3.5vh] font-medium shadow-lg">${opt}</button>`).join('')}
+                    ${node.a.map((opt, i) => `<button onclick="handleAns(${i}, ${node.c})" class="bg-blue-500 text-white py-4 rounded-2xl text-[3.5vh] font-medium shadow-lg">${opt}</button>`).join('')}
                 </div>
             `;
             document.getElementById('modal-overlay').classList.remove('hidden');
@@ -332,8 +341,7 @@
             setTimeout(() => {
                 document.getElementById('modal-overlay').classList.add('hidden');
                 if(idx === correct) {
-                    currentScore += 20; 
-                    isLocked = false;
+                    currentScore += 20; isLocked = false;
                 } else {
                     userLives--;
                     document.getElementById('heart-display').innerText = "❤️".repeat(userLives);
@@ -360,11 +368,6 @@
 
         function startGame() { document.getElementById('intro-layer').classList.add('hidden'); }
         window.onload = () => { start3DEngine(); buildBoard(); };
-        window.onresize = () => {
-            const container = document.getElementById('3d-dice-container');
-            threeRenderer.setSize(container.offsetWidth, container.offsetHeight);
-            updateRobot();
-        };
     </script>
 </body>
 </html>
