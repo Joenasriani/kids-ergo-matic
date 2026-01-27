@@ -414,20 +414,20 @@
             isActionLocked = true; rollingActive = true;
             oldPos = currentPos;
             
+            // MANDATORY: The landing number generated here MUST be the loop count later
             const moveSteps = Math.floor(Math.random() * 6) + 1;
             
             await new Promise(res => setTimeout(res, 1200));
             rollingActive = false;
             
             const euler = new THREE.Euler();
-            // FIXED ROTATION LOCKS: Absolute coordinates for straight landing
             const calibration = [
-                {x: 0, y: 0, z: 0},                   // 1
-                {x: -Math.PI / 2, y: 0, z: 0},        // 2
-                {x: 0, y: -Math.PI / 2, z: 0},        // 3
-                {x: 0, y: Math.PI / 2, z: 0},         // 4
-                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5 (Straight Upright)
-                {x: 0, y: Math.PI, z: 0}              // 6 (Straight Upright)
+                {x: 0, y: 0, z: 0},                   // 1: Lands on face '1'
+                {x: -Math.PI / 2, y: 0, z: 0},        // 2: Lands on face '2'
+                {x: 0, y: -Math.PI / 2, z: 0},        // 3: Lands on face '3'
+                {x: 0, y: Math.PI / 2, z: 0},         // 4: Lands on face '4'
+                {x: Math.PI / 2, y: 0, z: Math.PI},    // 5: Lands on face '5'
+                {x: 0, y: Math.PI, z: 0}              // 6: Lands on face '6'
             ];
             
             const target = calibration[moveSteps-1];
@@ -435,17 +435,21 @@
             diceTargetQuaternion.setFromEuler(euler);
             diceLerpFactor = 0; 
 
+            // Allow the landing animation to complete visually
             await new Promise(res => setTimeout(res, 1000));
             
+            // MANDATORY SYNC: Move exactly moveSteps
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
                     robot.classList.add('jump-animation'); 
                     positionRobot();
+                    // Wait for jump animation to finish before next step
                     await new Promise(res => setTimeout(res, 600));
                     robot.classList.remove('jump-animation');
                 }
             }
+            // Delay before showing question modal
             await new Promise(res => setTimeout(res, 700));
             resolveLanding();
         }
