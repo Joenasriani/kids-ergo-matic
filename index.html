@@ -402,25 +402,28 @@
             isActionLocked = true; 
             oldPos = currentPos;
             
-            // Generate steps first to ensure the die and actor stay in sync
-            const moveSteps = Math.floor(Math.random() * 6) + 1;
+            // Generate visual result
+            let dieResult = Math.floor(Math.random() * 6) + 1;
+            
+            // SWAP TEST: 2 die result = 5 jumps; 5 die result = 2 jumps.
+            let moveSteps = dieResult;
+            if (dieResult === 2) moveSteps = 5;
+            else if (dieResult === 5) moveSteps = 2;
             
             rollingActive = true;
             await new Promise(res => setTimeout(res, 800));
 
-            // EXPLICIT FIXED ROTATIONS: Maps moveSteps to the exact visual die face
             const targets = [
-                {x: 0, y: 0, z: 0},                 // 1: +Z Face (Default start)
-                {x: Math.PI/2, y: 0, z: 0},         // 2: -Y Face (Explicitly visual '2')
-                {x: 0, y: -Math.PI/2, z: 0},        // 3: +X Face (Explicitly visual '3')
-                {x: 0, y: Math.PI/2, z: 0},         // 4: -X Face (Explicitly visual '4')
-                {x: -Math.PI/2, y: 0, z: 0},        // 5: +Y Face (Explicitly visual '5')
-                {x: 0, y: Math.PI, z: 0}            // 6: -Z Face (Explicitly visual '6')
+                {x: 0, y: 0, z: 0},                 // 1: +Z
+                {x: Math.PI/2, y: 0, z: 0},         // 2: -Y
+                {x: 0, y: -Math.PI/2, z: 0},        // 3: +X
+                {x: 0, y: Math.PI/2, z: 0},         // 4: -X
+                {x: -Math.PI/2, y: 0, z: 0},        // 5: +Y
+                {x: 0, y: Math.PI, z: 0}            // 6: -Z
             ];
 
-            const selected = targets[moveSteps-1];
+            const selected = targets[dieResult-1];
             
-            // Snap logic ensures straight numbers and matches movement exactly
             diceTargetRotation = {
                 x: Math.round(threeCube.rotation.x / (Math.PI * 2)) * (Math.PI * 2) + selected.x,
                 y: Math.round(threeCube.rotation.y / (Math.PI * 2)) * (Math.PI * 2) + selected.y,
@@ -430,7 +433,7 @@
             rollingActive = false;
             await new Promise(res => setTimeout(res, 1200));
 
-            // SYNCED JUMPING: Actor moves exactly moveSteps times
+            // Execute jumps based on the possibly swapped value
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
