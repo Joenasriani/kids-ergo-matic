@@ -286,9 +286,9 @@
             { icon: '💧', quest: 'Hydration', q: 'Why is drinking water good for ergonomics?', a: ['It makes you move', 'It makes you faster', 'It cleans the screen'], c: 0 },
             { icon: '🪑', quest: 'Feet', q: 'Your feet don\'t touch the floor. What is the fix?', a: ['Swing legs', 'Use a box rest', 'Sit on knees'], c: 1 },
             { icon: '📦', quest: 'Lifting', q: 'Pick up a heavy box safely from the ground!', a: ['Bend knees', 'Bend back', 'Keep legs straight'], c: 0 },
+            { icon: '🛋️', quest: 'Posturing', q: 'What is the best way to sit at a desk?', a: ['Slouching forward', 'Back supported and upright', 'Feet dangling'], c: 1 },
+            { icon: '🍕', quest: 'Snack Break', q: 'What is the healthiest way to eat at your desk?', a: ['Eat while typing', 'Step away to a table', 'Eat while slouching'], c: 1 },
             { icon: '⏰', quest: 'Breaks', q: 'How often should you stand up and move?', a: ['Every 30 minutes', 'Every 5 hours', 'Once a day'], c: 0 },
-            { icon: '🚶', quest: 'Posture', q: 'What is the best way to sit at a desk?', a: ['Slouching forward', 'Back supported and upright', 'Feet dangling'], c: 1 },
-            { icon: '🛋️', quest: 'Sitting', q: 'How should your hips be positioned in a chair?', a: ['At the very edge', 'Deep in the chair back', 'Sideways'], c: 1 },
             { icon: '🏃', quest: 'Eye Care', q: 'What is the 20-20-20 rule for your eyes?', a: ['Stare for 20 mins', 'Look far away every 20m', 'Blink 20 times'], c: 1 },
             { icon: '📏', quest: 'Distance', q: 'How far away should your monitor be?', a: ['Arm\'s length', 'Very close', 'Across the room'], c: 0 },
             { icon: '📐', quest: 'Elbows', q: 'What angle should your elbows be while typing?', a: ['Straight out', '90 degrees (L shape)', 'Bent all the way'], c: 1 },
@@ -328,11 +328,10 @@
                 return new THREE.MeshBasicMaterial({ map: texture });
             };
 
-            // Faces mapped to standard dice layout
             const faceMaterials = [
-                generateDieFace('3'), generateDieFace('4'), // +X, -X
-                generateDieFace('2'), generateDieFace('5'), // +Y, -Y
-                generateDieFace('1'), generateDieFace('6')  // +Z, -Z
+                generateDieFace('3'), generateDieFace('4'), 
+                generateDieFace('2'), generateDieFace('5'), 
+                generateDieFace('1'), generateDieFace('6')  
             ];
 
             threeCube = new THREE.Mesh(cubeGeometry, faceMaterials);
@@ -344,9 +343,9 @@
                     threeCube.rotation.x += 0.35;
                     threeCube.rotation.y += 0.25;
                 } else {
-                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.1;
-                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.1;
-                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.1;
+                    threeCube.rotation.x += (diceTargetRotation.x - threeCube.rotation.x) * 0.15;
+                    threeCube.rotation.y += (diceTargetRotation.y - threeCube.rotation.y) * 0.15;
+                    threeCube.rotation.z += (diceTargetRotation.z - threeCube.rotation.z) * 0.15;
                 }
                 threeRenderer.render(threeScene, threeCamera);
             };
@@ -370,9 +369,14 @@
             activeLevels.forEach((node, idx) => {
                 const square = document.createElement('div');
                 square.className = 'tile';
-                if (idx === 0) square.style.backgroundColor = 'rgb(224, 242, 254)';
+                if (idx === 0) {
+                    square.style.backgroundColor = 'rgb(224, 242, 254)';
+                    square.innerHTML = '🏠'; 
+                } else {
+                    square.innerHTML = node.icon;
+                }
                 if (node.type === 'finish') square.classList.add('tile-finish-glow');
-                square.id = `square-${idx}`; square.innerHTML = node.icon; pathGrid.appendChild(square);
+                square.id = `square-${idx}`; pathGrid.appendChild(square);
             });
             setTimeout(positionRobot, 300);
         }
@@ -392,8 +396,6 @@
         function startGame() { 
             document.getElementById('intro-layer').classList.add('hidden'); 
             setTimeout(resizeDice, 150); refreshIdleTimer();
-            // Start Question for the House Icon
-            displayQuest(activeLevels[0]);
         }
 
         async function rollAction() {
@@ -405,30 +407,25 @@
             await new Promise(res => setTimeout(res, 800));
 
             const targets = [
-                {x: 0, y: 0, z: 0},                 // 1
-                {x: -Math.PI/2, y: 0, z: 0},       // 2
-                {x: 0, y: -Math.PI/2, z: 0},       // 3
-                {x: 0, y: Math.PI/2, z: 0},        // 4
-                {x: Math.PI/2, y: 0, z: 0},        // 5
-                {x: 0, y: Math.PI, z: 0}           // 6
+                {x: 0, y: 0, z: 0},                 
+                {x: -Math.PI/2, y: 0, z: 0},       
+                {x: 0, y: -Math.PI/2, z: 0},       
+                {x: 0, y: Math.PI/2, z: 0},        
+                {x: Math.PI/2, y: 0, z: 0},        
+                {x: 0, y: Math.PI, z: 0}           
             ];
 
             const selected = targets[moveSteps-1];
-            const currentX = threeCube.rotation.x;
-            const currentY = threeCube.rotation.y;
-            const currentZ = threeCube.rotation.z;
-
-            // Strict landing: snap to nearest full rotation + target face to avoid upside-down numbers
+            
             diceTargetRotation = {
-                x: Math.round(currentX / (Math.PI * 2)) * (Math.PI * 2) + selected.x,
-                y: Math.round(currentY / (Math.PI * 2)) * (Math.PI * 2) + selected.y,
-                z: Math.round(currentZ / (Math.PI * 2)) * (Math.PI * 2) + selected.z
+                x: Math.round(threeCube.rotation.x / (Math.PI * 2)) * (Math.PI * 2) + selected.x,
+                y: Math.round(threeCube.rotation.y / (Math.PI * 2)) * (Math.PI * 2) + selected.y,
+                z: Math.round(threeCube.rotation.z / (Math.PI * 2)) * (Math.PI * 2) + selected.z
             };
 
             rollingActive = false;
             await new Promise(res => setTimeout(res, 1000));
 
-            // CRUCIAL RULE: Die number = Jumps
             for (let s = 0; s < moveSteps; s++) {
                 if (currentPos < activeLevels.length - 1) {
                     currentPos++; 
@@ -465,15 +462,14 @@
                 modalLayer.classList.add('hidden');
                 if (pick === correct) { 
                     currentScore += 20; notifyFeedback("EXCELLENT! +20"); isActionLocked = false;
-                    document.getElementById('score-val').textContent = currentScore;
                 } else { 
                     userLives--; updateHearts();
                     if (userLives <= 0) { renderGameOver(); return; }
                     currentPos = oldPos; positionRobot();
                     setTimeout(() => { isActionLocked = false; }, 600);
                     currentScore = Math.max(0, currentScore - 5); notifyFeedback("WRONG! ❤️ LOST"); 
-                    document.getElementById('score-val').textContent = currentScore;
                 }
+                document.getElementById('score-val').textContent = currentScore;
             }, 350);
         };
 
