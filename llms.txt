@@ -1,0 +1,12 @@
+# ERGO-MATIC
+
+Canonical play URL: https://kids-ergo-matic-eqjk.vercel.app/
+Repository: https://github.com/Joenasriani/kids-ergo-matic
+
+ERGO-MATIC is a board-style ergonomics quiz game developed as part of a multi-game interactive children’s edutainment activation in the UAE.
+
+Core interaction: roll die → move along path → answer three-choice ergonomics question → update score/lives → continue toward finish.
+
+Correct answers add 20 points. Incorrect answers remove 5 points, remove one of two lives, and return the robot to its position before the roll.
+
+The built-in questions are simplified game content. The repository does not establish them as a complete ergonomics standard and contains no validation study of posture change, injury prevention, retention or transfer.
